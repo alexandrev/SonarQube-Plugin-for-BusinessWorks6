@@ -1,0 +1,43 @@
+<binding name="binding" package="com.tibco.businessworks6.sonar.plugin.data.model.profiles" trim-whitespace="true">
+  <mapping class="com.tibco.businessworks6.sonar.plugin.data.model.profiles.Profile" name="Profile">
+    <structure name="Data">
+      <value style="element" name="Name" get-method="getDataName" set-method="setDataName"/>
+      <value style="element" name="Version" get-method="getDataVersion" set-method="setDataVersion"/>
+    </structure>
+    <structure name="Elements">
+      <structure get-method="getModuleProperty" set-method="setModuleProperty" usage="optional" name="ModuleProperty">
+        <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+      </structure>
+      <structure get-method="getResources" set-method="setResources" usage="optional" name="Resources">
+        <value style="element" name="LocationPattern" get-method="getLocationPattern" set-method="setLocationPattern"/>
+        <collection get-method="getResourceList" set-method="setResourceList" usage="optional" create-type="java.util.ArrayList">
+          <structure type="com.tibco.businessworks6.sonar.plugin.data.model.profiles.Profile$Resources$Resource" name="Resource">
+            <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+            <value style="element" name="Type" get-method="getType" set-method="setType"/>
+          </structure>
+        </collection>
+      </structure>
+      <structure get-method="getProcess" set-method="setProcess" usage="optional" name="Process">
+        <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+        <value style="element" name="LocationPattern" get-method="getLocationPattern" set-method="setLocationPattern"/>
+        <structure get-method="getProcessProperty" set-method="setProcessProperty" usage="optional" name="ProcessProperty">
+          <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+        </structure>
+        <collection get-method="getActivityList" set-method="setActivityList" usage="optional" create-type="java.util.ArrayList">
+          <structure type="com.tibco.businessworks6.sonar.plugin.data.model.profiles.Profile$Process$Activities" name="Activities">
+            <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+            <value style="element" name="Type" get-method="getType" set-method="setType"/>
+          </structure>
+        </collection>
+      </structure>
+      <structure get-method="getDescriptors" set-method="setDescriptors" usage="optional" name="Descriptors">
+        <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+        <value style="element" name="LocationPattern" get-method="getLocationPattern" set-method="setLocationPattern"/>
+      </structure>
+      <structure get-method="getSchemas" set-method="setSchemas" usage="optional" name="Schemas">
+        <value style="element" name="NamingPattern" get-method="getNamingPattern" set-method="setNamingPattern"/>
+        <value style="element" name="LocationPattern" get-method="getLocationPattern" set-method="setLocationPattern"/>
+      </structure>
+    </structure>
+  </mapping>
+</binding>

@@ -1,5 +1,6 @@
-package com.tibco.utils.bw.model;
+package com.tibco.businessworks6.sonar.plugin.data.model;
 
+import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -15,6 +16,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import org.sonar.api.batch.fs.InputFile;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -35,7 +37,7 @@ public class Process {
 	protected Map<String, Service> services = new HashMap<String, Service>();
 	protected Map<String, Service> processReferenceServices = new HashMap<String, Service>();
 	protected Map<String, String> synonymsGroupMapping = new HashMap<String, String>();
-	
+	protected List<ProcessProperty> processProperty = new ArrayList<ProcessProperty>();
 
 	protected boolean hasForEachGroup;
 	protected Document processXmlDocument;
@@ -45,6 +47,9 @@ public class Process {
 	protected int catchcount = 0;
 	protected int eventHandler = 0;
 	protected NamedNodeMap namedNodeMap;
+        protected BwProject project;
+        private ProcessSource source;
+        private InputFile resource;
 	
 	public Map<String, String> getSynonymsGroupMapping() {
 		return synonymsGroupMapping;
@@ -252,6 +257,7 @@ public class Process {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+                checkSubprocess(project.getBwmFile());
 	}
 	
 	public String findActualReferenceServiceName(String referenceService){
@@ -626,4 +632,61 @@ public class Process {
 	public List<EventSource> getEventSources(){
 		return eventSources;
 	}
+        
+        public void checkSubprocess(File file) {
+        
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder;
+        NodeList propertyList = null;
+        boolean flag = true;
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(file);
+            doc.getDocumentElement().normalize();
+            propertyList = doc.getElementsByTagName("sca:component");
+            for (int i = 0; i < propertyList.getLength(); i++) {
+                if (name.equals(propertyList.item(i).getChildNodes().item(1).getAttributes().getNamedItem("processName").getNodeValue())) {
+                    flag = false;
+                    break;
+                }
+            }
+            setSubProcess(flag);
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void setProject(BwProject aThis) {
+        this.project = aThis;
+    }
+
+    /**
+     * @return the source
+     */
+    public ProcessSource getSource() {
+        return source;
+    }
+
+    /**
+     * @param source the source to set
+     */
+    public void setSource(ProcessSource source) {
+        this.source = source;
+    }
+
+    public void setResource(InputFile resource) {
+        this.resource = resource;
+    }
+
+    /**
+     * @return the resource
+     */
+    public InputFile getResource() {
+        return resource;
+    }
 }

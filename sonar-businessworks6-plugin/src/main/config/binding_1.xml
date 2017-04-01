@@ -1,0 +1,37 @@
+<binding name="binding" package="com.tibco.businessworks6.sonar.plugin.data.model" trim-whitespace="true">
+  <mapping class="com.tibco.businessworks6.sonar.plugin.data.model.ActivityProperties" name="ActivityProperties">
+    <collection get-method="getActivityList" set-method="setActivityList" create-type="java.util.ArrayList">
+      <structure type="com.tibco.businessworks6.sonar.plugin.data.model.ActivityProperties$Activity" name="Activity">
+        <value style="element" name="Type" get-method="getType" set-method="setType"/>
+        <collection get-method="getPropertyList" set-method="setPropertyList" name="Properties" create-type="java.util.ArrayList">
+          <structure type="com.tibco.businessworks6.sonar.plugin.data.model.ActivityProperties$Activity$Property" name="Property">
+            <value style="element" name="Name" get-method="getName" set-method="setName"/>
+            <value style="element" name="Required" get-method="getRequired" set-method="setRequired"/>
+            <value style="element" name="GlobalVariable" get-method="getGlobalVariable" set-method="setGlobalVariable"/>
+          </structure>
+        </collection>
+      </structure>
+    </collection>
+  </mapping>
+  <mapping class="com.tibco.businessworks6.sonar.plugin.data.model.SharedResourceProperties" name="SharedResourceProperties">
+    <collection get-method="getSharedResourceList" set-method="setSharedResourceList" create-type="java.util.ArrayList">
+      <structure type="com.tibco.businessworks6.sonar.plugin.data.model.SharedResourceProperties$SharedResource" name="SharedResource">
+        <collection get-method="getPropertyList" set-method="setPropertyList" create-type="java.util.ArrayList">
+          <structure type="com.tibco.businessworks6.sonar.plugin.data.model.SharedResourceProperties$SharedResource$Property" name="Property">
+            <collection get-method="getDependencyList" set-method="setDependencyList" create-type="java.util.ArrayList">
+              <structure type="com.tibco.businessworks6.sonar.plugin.data.model.SharedResourceProperties$SharedResource$Property$Dependency" name="Dependency">
+                <value style="attribute" name="field" get-method="getField" set-method="setField" usage="optional"/>
+                <value style="attribute" name="value" get-method="getValue" set-method="setValue" usage="optional"/>
+              </structure>
+            </collection>
+            <value style="attribute" name="name" get-method="getName" set-method="setName" usage="optional"/>
+            <value style="attribute" name="required" get-method="getRequired" set-method="setRequired" usage="optional"/>
+            <value style="attribute" name="binding" get-method="getBinding" set-method="setBinding" usage="optional"/>
+          </structure>
+        </collection>
+        <value style="attribute" name="name" get-method="getName" set-method="setName" usage="optional"/>
+        <value style="attribute" name="type" get-method="getType" set-method="setType" usage="optional"/>
+      </structure>
+    </collection>
+  </mapping>
+</binding>

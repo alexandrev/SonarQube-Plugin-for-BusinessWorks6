@@ -1,4 +1,4 @@
-package com.tibco.utils.bw.model;
+package com.tibco.businessworks6.sonar.plugin.data.model;
 
 import java.util.HashMap;
 import java.util.Map;

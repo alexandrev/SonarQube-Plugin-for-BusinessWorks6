@@ -18,6 +18,7 @@ package com.tibco.businessworks6.sonar.plugin.source;
  * limitations under the License.
  */
 
+import com.tibco.businessworks6.sonar.plugin.data.model.helper.XmlHelper;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
@@ -31,9 +32,6 @@ import com.tibco.businessworks6.sonar.plugin.file.XmlFile;
 import com.tibco.businessworks6.sonar.plugin.util.SaxParser;
 import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
-/*import com.tibco.utils.bw.helper.GvHelper;
-import com.tibco.utils.bw.helper.XmlHelper;*/
-import com.tibco.utils.bw.helper.XmlHelper;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -85,6 +83,10 @@ public class XmlSource extends AbstractSource {
 		super();
 		this.xmlFile = xmlFile;
 	}
+        
+        
+        
+        
 	
 	/**
 	 * @param code
@@ -101,9 +103,9 @@ public class XmlSource extends AbstractSource {
 	 * @return created {@link InputStream}
 	 */
 	public InputStream createInputStream() {
-		if (xmlFile.getIOFile() != null) {
+		if (getXmlFile().getIOFile() != null) {
 			try {
-				return FileUtils.openInputStream(xmlFile.getIOFile());
+				return FileUtils.openInputStream(getXmlFile().getIOFile());
 			} catch (IOException e) {
 				throw new SonarException(e);
 			}
@@ -130,7 +132,7 @@ public class XmlSource extends AbstractSource {
 	 */
 	@Override
 	public boolean parseSource(Charset charset) {
-		xmlFile.checkForCharactersBeforeProlog(charset);
+		getXmlFile().checkForCharactersBeforeProlog(charset);
 
 		documentNamespaceUnaware = parseFile(false);
 		if (documentNamespaceUnaware != null) {
@@ -146,7 +148,7 @@ public class XmlSource extends AbstractSource {
 	 */
 	private Document parseFile(boolean namespaceAware) {
 		//return new SaxParser().parseDocument(createInputStream(), namespaceAware);
-		return new SaxParser().parseDocument(xmlFile.getIOFile(), namespaceAware);
+		return new SaxParser().parseDocument(getXmlFile().getIOFile(), namespaceAware);
 	}
 
 	/**
@@ -154,21 +156,21 @@ public class XmlSource extends AbstractSource {
 	 * @return
 	 */
 	public int getLineForNode(Node node) {
-		return SaxParser.getLineNumber(node) + xmlFile.getLineDelta();
+		return SaxParser.getLineNumber(node) + getXmlFile().getLineDelta();
 	}
 
 	/**
 	 * Returns the line number where the prolog is located in the file.
 	 */
 	public int getXMLPrologLine() {
-		return xmlFile.getPrologLine();
+		return getXmlFile().getPrologLine();
 	}
 
 	/**
 	 * @return
 	 */
 	public boolean isPrologFirstInSource() {
-		return xmlFile.hasCharsBeforeProlog();
+		return getXmlFile().hasCharsBeforeProlog();
 	}
 
 	/* (non-Javadoc)
@@ -176,7 +178,7 @@ public class XmlSource extends AbstractSource {
 	 */
 	@Override
 	public String toString() {
-		return xmlFile.toString();
+		return getXmlFile().toString();
 	}
 
 	/* (non-Javadoc)
@@ -193,7 +195,7 @@ public class XmlSource extends AbstractSource {
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public Resource create() {
-		return new org.sonar.api.resources.File(xmlFile.getIOFile().getAbsolutePath()); 
+		return new org.sonar.api.resources.File(getXmlFile().getIOFile().getAbsolutePath()); 
 	}
 	
 	/**
@@ -360,5 +362,19 @@ public class XmlSource extends AbstractSource {
 		}
 		return violations;
 	}
+
+    /**
+     * @return the xmlFile
+     */
+    public XmlFile getXmlFile() {
+        return xmlFile;
+    }
+
+    /**
+     * @param xmlFile the xmlFile to set
+     */
+    public void setXmlFile(XmlFile xmlFile) {
+        this.xmlFile = xmlFile;
+    }
 	
 }

@@ -1,0 +1,180 @@
+<%
+
+critical_violations = 0;
+blocker_violations = 0;
+major_violations = 0;
+minor_violations = 0;
+info_violations = 0;
+total_violations = 0;
+
+issues=@snapshot.measure('bw6.violations')
+process = @snapshot.measure('bw6')
+
+
+ if process && process.data
+
+process_diagram, *restElement = process.data.split(/@@/)
+issues_hash = JSON.parse issues.data
+
+violations = issues_hash["violations"]
+
+
+for tmp_viol in violations
+    total_violations+=1;
+    case tmp_viol["severity"]
+        when "BLOCKER"
+            blocker_violations+=1;
+        when "CRITICAL"
+            critical_violations+=1;
+        when "MAJOR"
+            major_violations+=1;
+        when "MINOR"
+            minor_violations+=1;
+        when "INFO"
+            info_violations+=1;
+        else
+    end
+end
+
+
+%>
+
+
+
+<script type="text/javascript">
+    var error = <%=issues.data %>
+</script>
+  <div class="accordion-item-body">
+    <div class="violations_header tab_header">
+  
+    <table class="sourceHeader">
+      <tr>
+        <td nowrap><span class="big"><span id='m_violations'  ><%=total_violations %></span></span>&nbsp;issues</td>
+
+        <td class="sep"> </td>
+        <td class="name"><i class="icon-severity-blocker"></i> Blocker:</td>
+        <td class="value"><%= blocker_violations %></td>
+
+        <td class="sep"> </td>
+        <td><i class="icon-severity-critical"></i></td>
+        <td class="name">Critical:</td>
+        <td class="value"><%= critical_violations %></td>
+
+        <td class="sep"> </td>
+        <td><i class="icon-severity-major"></i></td>
+        <td class="name">Major:</td>
+        <td class="value"><span id='m_major_violations'  ><%= major_violations %></span></td>
+
+        <td class="sep"> </td>
+        <td><i class="icon-severity-minor"></i></td>
+        <td class="name">Minor:</td>
+        <td class="value"><%= minor_violations %></td>
+
+        <td class="sep"> </td>
+        <td><i class="icon-severity-info"></i></td>
+        <td class="name">Info:</td>
+        <td class="value"><%= info_violations %></td>
+      </tr>
+    </table>
+  </div>
+<div class="code-global-issues" style="overflow:auto">
+<%= process_diagram %>
+</div>
+<script type="text/javascript">
+
+
+
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
+d3.selection.prototype.moveToBack = function() { 
+    return this.each(function() { 
+        var firstChild = this.parentNode.firstChild; 
+        if (firstChild) { 
+            this.parentNode.insertBefore(this, firstChild); 
+        } 
+    }); 
+};
+                function getColorByServerity(severity){
+                    if(severity == "CRITICAL"){
+                        return "red";
+                    }
+                    if(severity == "BLOCKER"){
+                        return "gray";
+                    }
+                    if(severity == "MAJOR"){
+                        return "orange";
+                    }
+                    if(severity == "MINOR"){
+                        return "yellow";
+                    }
+                    if(severity == "INFO"){
+                        return "green";
+                    }
+                }
+		
+                function markErrors(error){
+			error.forEach(function(entry) {
+				activity = entry.activity;
+				var nodes = d3.select("[id='"+activity+"']");
+				nodes.append("rect")
+						.attr("width",48)
+						.attr("height",48)
+						.attr("fill",getColorByServerity(entry.severity))
+						.attr("fill-opacity",0.2);
+				
+				nodes.on("mouseover", 
+					function(d) {      
+						var node = d3.select(this);
+						node.append("g")
+							.attr("transform","translate(15,70)")
+							.append("rect")
+								.attr("width",10)
+								.attr("height",30)
+								.attr("fill-opacity",0.7)
+								.attr("fill",getColorByServerity(entry.severity))
+								.transition()
+									.duration(1000)
+									.attr("width",10*entry.message.length)
+									.attr("height",30);
+						node.select("g").append("text").attr("x",10)
+								.attr("y",15)
+								.transition()
+									.duration(1000).text(entry.message);
+                                                
+                                                 var nodeCoordinates = node.attr("transform").substring(10,node.attr("transform").length-1).split(' ');
+                                                 var nodeX = nodeCoordinates[0];
+                                                 var maxMessageX = parseInt(nodeX) + (10*entry.message.length);
+                                                 var newWidth = d3.select("svg").attr("width");
+                                                 if(maxMessageX > newWidth){
+                                                    newWidth = parseInt(maxMessageX)+100;
+                                                 }
+
+                                                 var nodeY = nodeCoordinates[1];
+                                                 var maxMessageY = parseInt(nodeY) + 60;
+                                                 var newHeight = d3.select("svg").attr("height");
+                                                 if(maxMessageY > newHeight){
+                                                    newHeight = parseInt(maxMessageY)+100;
+                                                 }
+
+                                                  d3.select("svg").attr("style","width:"+newWidth+"px;height:"+newHeight+"px");
+                                                 })     
+					.on("mouseout", function(d) {      
+						var node = d3.select(this);
+						node.select("g").remove();
+					});
+			});
+		}
+		markErrors(error.violations);
+</script>
+
+<% else %>     
+<div class="code-issue">
+    <div class="code-issue-name">
+        <span class="rulename"> This item doesn't support graphical visualization </span>
+    </div>
+</div>
+<% end %>

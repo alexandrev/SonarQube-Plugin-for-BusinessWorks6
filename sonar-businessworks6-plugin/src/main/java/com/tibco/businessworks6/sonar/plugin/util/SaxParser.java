@@ -17,8 +17,7 @@
  */
 package com.tibco.businessworks6.sonar.plugin.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -31,15 +30,14 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.log4j.Logger;
 
 /**
  * Parse XML files and add linenumbers in the document.
@@ -48,50 +46,21 @@ import java.util.Map.Entry;
  */
 public final class SaxParser extends AbstractParser {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SaxParser.class);
 
 	/**
 	 * From http://will.thestranathans.com/post/1026712315/getting-line-numbers-from-xpath-in-java
 	 */
-	private static final class LocationRecordingHandler extends DefaultHandler implements LexicalHandler {
+	private static final class LocationRecordingHandler extends DefaultHandler {
 
 		private final Document doc;
 		private Locator locator;
 		private Element current;
 
-		private final Map<String, String> prefixMappings = new HashMap<String, String>();
+		private final Map<String, String> prefixMappings = new HashMap<>();
 
 		// The docs say that parsers are "highly encouraged" to set this
 		public LocationRecordingHandler(Document doc) {
 			this.doc = doc;
-		}
-
-		// Even with text nodes, we can record the line and column number
-		@Override
-		public void characters(char[] buf, int offset, int length) {
-			if (current != null) {
-				Node n = doc.createTextNode(new String(buf, offset, length));
-				setLocationData(n);
-				current.appendChild(n);
-			}
-		}
-
-		@Override
-		public void endElement(String uri, String localName, String qName) {
-			Node parent;
-
-			if (current == null) {
-				return;
-			}
-
-			parent = current.getParentNode();
-			// If the parent is the document itself, then we're done.
-			if (parent.getParentNode() == null) {
-				current.normalize();
-				current = null;
-			} else {
-				current = (Element) current.getParentNode();
-			}
 		}
 
 		@Override
@@ -152,51 +121,6 @@ public final class SaxParser extends AbstractParser {
 				}
 			}
 		}
-
-		/**
-		 * prefixMappings (namespaces) are sent before startElement(). So keep the mappings in a Map and add as attributes in startElement().
-		 */
-		@Override
-		public void startPrefixMapping(String prefix, String uri) throws SAXException {
-			prefixMappings.put(prefix, uri);
-		}
-
-		/**
-		 * Comment node (needed for white space checking).
-		 */
-		public void comment(char[] buf, int offset, int length) throws SAXException {
-			Node n = doc.createComment(new String(buf, offset, length));
-			setLocationData(n);
-			if (current == null) {
-				doc.appendChild(n);
-			} else {
-				current.appendChild(n);
-			}
-		}
-
-		public void endCDATA() throws SAXException {
-			// empty - Lexical Handler method
-		}
-
-		public void endDTD() throws SAXException {
-			// empty - Lexical Handler method
-		}
-
-		public void endEntity(String arg0) throws SAXException {
-			// empty - Lexical Handler method
-		}
-
-		public void startCDATA() throws SAXException {
-			// empty - Lexical Handler method
-		}
-
-		public void startDTD(String arg0, String arg1, String arg2) throws SAXException {
-			// empty - Lexical Handler method
-		}
-
-		public void startEntity(String arg0) throws SAXException {
-			// empty - Lexical Handler method
-		}
 	}
 
 	private static final String KEY_LINE_NO = "saxParser.lineNumber";
@@ -207,7 +131,7 @@ public final class SaxParser extends AbstractParser {
 	 * Gets the LineNumber of a node.
 	 */
 	public static int getLineNumber(Node node) {
-		Integer lineNumber = (Integer) node.getUserData(SaxParser.KEY_LINE_NO);
+		Integer lineNumber = (Integer) node.getUserData("lineNumber");
 		return lineNumber == null ? 0 : lineNumber;
 	}
 
@@ -218,10 +142,9 @@ public final class SaxParser extends AbstractParser {
     parser.parse(input, handler);
   }*/
 
-	private void parse(File input, DefaultHandler handler, boolean namespaceAware) throws IOException, SAXException {
-		SAXParser parser = newSaxParser(namespaceAware);
+	private void parse(File input, DefaultHandler handler) throws IOException, SAXException {
+		SAXParser parser = newSaxParser(false);
 		// read comments too, so use lexical handler.
-		parser.getXMLReader().setProperty("http://xml.org/sax/properties/lexical-handler", handler);
 		parser.parse(input, handler);
 	}
 
@@ -248,11 +171,9 @@ public final class SaxParser extends AbstractParser {
 			DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			Document document = builder.parse(input);
 			LocationRecordingHandler handler = new LocationRecordingHandler(document);
-			parse(input, handler, namespaceAware);
+			parse(input, handler);
 			return document;
 		} catch (Exception e) {
-			LOG.warn("Unable to analyse input stream");
-			LOG.warn("Cause: {}", e.toString());
 			return null;
 		}
 	}

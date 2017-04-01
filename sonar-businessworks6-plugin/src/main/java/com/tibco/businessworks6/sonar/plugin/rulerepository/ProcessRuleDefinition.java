@@ -21,7 +21,7 @@ public final class ProcessRuleDefinition implements RulesDefinition{
 			com.tibco.businessworks6.sonar.plugin.check.process.JDBCWildCardCheck.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.JDBCHardCodeCheck.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.MultipleTransitionCheck.class,
-			com.tibco.businessworks6.sonar.plugin.check.process.DeadLockCheck.class,
+			com.tibco.businessworks6.sonar.plugin.check.project.DeadLockCheck.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.LogOnlyInSubprocessCheck.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.JMSHardCodeCheck.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.ForEachMappingCheck.class,
@@ -33,7 +33,16 @@ public final class ProcessRuleDefinition implements RulesDefinition{
 			com.tibco.businessworks6.sonar.plugin.check.process.CheckpointInTransation.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.JMSAcknowledgementModeCheck.class,
 			com.tibco.businessworks6.sonar.plugin.check.process.CriticalSectionCheck.class,
-			com.tibco.businessworks6.sonar.plugin.check.process.SubProcessInlineCheck.class
+			com.tibco.businessworks6.sonar.plugin.check.process.SubProcessInlineCheck.class,
+                        com.tibco.businessworks6.sonar.plugin.check.process.ProcessVersionCheck.class,
+                        com.tibco.businessworks6.sonar.plugin.check.process.BwTransitionXPathNoOtherwiseCheck.class,
+                        com.tibco.businessworks6.sonar.plugin.check.project.BwModulePropertyNotUsed.class,
+                        com.tibco.businessworks6.sonar.plugin.check.project.BwSharedVariableNotUsed.class,
+                        com.tibco.businessworks6.sonar.plugin.check.resources.BwSharedResourceNotUsed.class,
+                        com.tibco.businessworks6.sonar.plugin.check.resources.BwSharedResourceParameterRequired.class,
+                        com.tibco.businessworks6.sonar.plugin.check.resources.BwSharedResourceUsingModuleProperty.class,
+                        com.tibco.businessworks6.sonar.plugin.check.other.BwCustomXPathFilter.class
+                        
 		};
 	
 	protected String rulesDefinitionFilePath() {

@@ -1,4 +1,4 @@
-package com.tibco.utils.bw.model;
+package com.tibco.businessworks6.sonar.plugin.data.model;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -8,8 +8,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import com.tibco.utils.bw.model.Operation;
-import com.tibco.utils.bw.model.Process;
+import com.tibco.businessworks6.sonar.plugin.data.model.Operation;
+import com.tibco.businessworks6.sonar.plugin.data.model.Process;
 
 public class Test {
 	Map<String, Process> servicetoprocess = new HashMap<String, Process>();

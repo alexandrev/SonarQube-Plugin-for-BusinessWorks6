@@ -32,107 +32,106 @@ import org.sonar.api.resources.Project;
 //import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.CheckFactory;
-import com.tibco.utils.bw.model.Process;
-
+import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
 
 /**
  * XmlSensor provides analysis of xml files.
- * 
+ *
  * @author Kapil Shivarkar
  */
 public abstract class AbstractSensor implements Sensor {
 
-	//protected ModuleFileSystem fileSystem1;
-	protected FileSystem fileSystem;
-	protected ResourcePerspectives resourcePerspectives;
-	protected String languageKey;
-	protected Project project;
-	protected SensorContext sensorContext;
-	public final CheckFactory checkFactory;
-	public static Map<String, String> resourceExtensionMapper = new HashMap<String,String>();
-	
-	protected AbstractSensor(FileSystem fileSystem,
-			ResourcePerspectives resourcePerspectives, String languageKey, CheckFactory checkFactory) {
-		this.fileSystem = fileSystem;
-		this.resourcePerspectives = resourcePerspectives;
-		this.languageKey = languageKey;
-		this.checkFactory = checkFactory;
-		createResourceExtensionMapper(resourceExtensionMapper);
-	}
+    //protected ModuleFileSystem fileSystem1;
+    protected FileSystem fileSystem;
+    protected ResourcePerspectives resourcePerspectives;
+    protected String languageKey;
+    protected Project project;
+    protected SensorContext sensorContext;
+    public final CheckFactory checkFactory;
+    public static Map<String, String> resourceExtensionMapper = new HashMap<String, String>();
 
-	public void createResourceExtensionMapper(Map<String, String> resourceExtensionMapper){
-		resourceExtensionMapper.put(".httpClientResource", "HTTP Client");
-		resourceExtensionMapper.put(".authxml", "XML Authentication");
-		resourceExtensionMapper.put(".wssResource", "WSS Authentication");
-		resourceExtensionMapper.put(".trustResource", "Trust Provider");
-		resourceExtensionMapper.put(".threadPoolResource", "Threal Pool");
-		resourceExtensionMapper.put(".tcpResource", "TCP Connection");
-		resourceExtensionMapper.put(".sipResource", "Subject Provider");
-		resourceExtensionMapper.put(".sslServerResource", "SSL Server Configuration");
-		resourceExtensionMapper.put(".sslClientResource", "SSL Client Configuration");
-		resourceExtensionMapper.put(".smtpResource", "SMTP Resource");
-		resourceExtensionMapper.put(".rvResource", "Rendezvous Transport");
-		resourceExtensionMapper.put(".httpProxyResource", "Proxy Configuration");
-		resourceExtensionMapper.put(".ldapResource", "LDAP Authentication");
-		resourceExtensionMapper.put(".keystoreProviderResource", "Keystore Provider");
-		resourceExtensionMapper.put(".jndiConfigResource", "JNDI Configuration");
-		resourceExtensionMapper.put(".jmsConnResource", "JMS Connection");
-		resourceExtensionMapper.put(".jdbcResource", "JDBC Connection");
-		resourceExtensionMapper.put(".javaGlobalInstanceResource", "Java Global Instance");
-		resourceExtensionMapper.put(".userIdResource", "Identity Provider");
-		resourceExtensionMapper.put(".httpConnResource", "HTTP Connector");
-		resourceExtensionMapper.put(".ftpResource", "FTP Connection");
-		resourceExtensionMapper.put(".ftlResource", "FTL Realm Server Connection");
-		resourceExtensionMapper.put(".dataFormatResource", "Data Format");
-		resourceExtensionMapper.put(".sql", "SQL File");
-	}
-	
-	public void setLanguageKey(String languageKey) {
-		this.languageKey = languageKey;
-	}
+    protected AbstractSensor(FileSystem fileSystem,
+            ResourcePerspectives resourcePerspectives, String languageKey, CheckFactory checkFactory) {
+        this.fileSystem = fileSystem;
+        this.resourcePerspectives = resourcePerspectives;
+        this.languageKey = languageKey;
+        this.checkFactory = checkFactory;
+        createResourceExtensionMapper(resourceExtensionMapper);
+    }
 
-	/**
-	 * Analyze the files.
-	 */
-	public void analyse(Project project, SensorContext sensorContext) {
-		this.project = project;
-		this.sensorContext = sensorContext;
-		/*for (java.io.File file : fileSystem.files(FileQuery.onSource()
+    public void createResourceExtensionMapper(Map<String, String> resourceExtensionMapper) {
+        resourceExtensionMapper.put(".httpClientResource", "HTTP Client");
+        resourceExtensionMapper.put(".authxml", "XML Authentication");
+        resourceExtensionMapper.put(".wssResource", "WSS Authentication");
+        resourceExtensionMapper.put(".trustResource", "Trust Provider");
+        resourceExtensionMapper.put(".threadPoolResource", "Threal Pool");
+        resourceExtensionMapper.put(".tcpResource", "TCP Connection");
+        resourceExtensionMapper.put(".sipResource", "Subject Provider");
+        resourceExtensionMapper.put(".sslServerResource", "SSL Server Configuration");
+        resourceExtensionMapper.put(".sslClientResource", "SSL Client Configuration");
+        resourceExtensionMapper.put(".smtpResource", "SMTP Resource");
+        resourceExtensionMapper.put(".rvResource", "Rendezvous Transport");
+        resourceExtensionMapper.put(".httpProxyResource", "Proxy Configuration");
+        resourceExtensionMapper.put(".ldapResource", "LDAP Authentication");
+        resourceExtensionMapper.put(".keystoreProviderResource", "Keystore Provider");
+        resourceExtensionMapper.put(".jndiConfigResource", "JNDI Configuration");
+        resourceExtensionMapper.put(".jmsConnResource", "JMS Connection");
+        resourceExtensionMapper.put(".jdbcResource", "JDBC Connection");
+        resourceExtensionMapper.put(".javaGlobalInstanceResource", "Java Global Instance");
+        resourceExtensionMapper.put(".userIdResource", "Identity Provider");
+        resourceExtensionMapper.put(".httpConnResource", "HTTP Connector");
+        resourceExtensionMapper.put(".ftpResource", "FTP Connection");
+        resourceExtensionMapper.put(".ftlResource", "FTL Realm Server Connection");
+        resourceExtensionMapper.put(".dataFormatResource", "Data Format");
+        resourceExtensionMapper.put(".sql", "SQL File");
+    }
+
+    public void setLanguageKey(String languageKey) {
+        this.languageKey = languageKey;
+    }
+
+    /**
+     * Analyze the files.
+     */
+    public void analyse(Project project, SensorContext sensorContext) {
+        this.project = project;
+        this.sensorContext = sensorContext;
+        /*for (java.io.File file : fileSystem.files(FileQuery.onSource()
 				.onLanguage(languageKey))) {*/
-		for (File file : fileSystem.files(fileSystem.predicates().hasLanguage(languageKey))) {
-			try {
-				analyseFile(file);
-			} catch (Exception e) {
-				log().error(
-						"Could not analyze the file " + file.getAbsolutePath(),
-						e);
-			}
-		}
-		analyseDeadLock(fileSystem.files(fileSystem.predicates().hasLanguage(languageKey)));
-		processMetrics();
-	}
+        for (File file : fileSystem.files(fileSystem.predicates().hasLanguage(languageKey))) {
+            try {
+                analyseFile(file);
+            } catch (Exception e) {
+                log().error(
+                        "Could not analyze the file " + file.getAbsolutePath(),
+                        e);
+            }
+        }
+        analyseDeadLock(fileSystem.files(fileSystem.predicates().hasLanguage(languageKey)));
+        processMetrics();
+    }
 
-	protected abstract void analyseDeadLock(Iterable<File> filesIterable);
-	
-	protected abstract void processMetrics();
-	
-	protected abstract void analyseFile(java.io.File file);
+    protected abstract void analyseDeadLock(Iterable<File> filesIterable);
 
-	/**
-	 * This sensor only executes on projects with language files.
-	 */
-	public boolean shouldExecuteOnProject(Project project) {
-		/*return !fileSystem1.files(FileQuery.onSource().onLanguage(languageKey))
+    protected abstract void processMetrics();
+
+    protected abstract void analyseFile(java.io.File file);
+
+    /**
+     * This sensor only executes on projects with language files.
+     */
+    public boolean shouldExecuteOnProject(Project project) {
+        /*return !fileSystem1.files(FileQuery.onSource().onLanguage(languageKey))
 				.isEmpty();*/
-		return !fileSystem.files(fileSystem.predicates().hasLanguage(languageKey)).iterator().hasNext();
-	}
+        return !fileSystem.files(fileSystem.predicates().hasLanguage(languageKey)).iterator().hasNext();
+    }
 
-	@Override
-	public String toString() {
-		return getClass().getSimpleName();
-	}
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 
-	protected Logger log() {
-		return LoggerFactory.getLogger(getClass());
-	}
+    protected Logger log() {
+        return LoggerFactory.getLogger(getClass());
+    }
 }

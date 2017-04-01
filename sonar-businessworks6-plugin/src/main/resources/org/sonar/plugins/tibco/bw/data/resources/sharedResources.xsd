@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 (http://www.altova.com) by Alexandre (XANDREV) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:element name="SharedResourceProperties">
+        <xs:annotation>
+            <xs:documentation>Comment describing your root element</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="SharedResource" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Property" maxOccurs="unbounded">
+                                <xs:complexType>
+
+                                    <xs:sequence>
+
+                                        <xs:element name="Dependency" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                                                
+                                                </xs:sequence>  
+                                                <xs:attribute name="field" type="xs:string"/>
+                                                <xs:attribute name="value" type="xs:string"/>  
+                                            </xs:complexType>
+
+                                        </xs:element> 
+                                    </xs:sequence>
+                                    <xs:attribute name="name" type="xs:string" />
+                                    <xs:attribute name="required" type="xs:boolean" />
+                                    <xs:attribute name="binding" type="xs:boolean" />
+                                </xs:complexType>        
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="name" type="xs:string"/>
+                        <xs:attribute name="type" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

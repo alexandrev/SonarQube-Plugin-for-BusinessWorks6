@@ -1,8 +1,5 @@
 package com.tibco.businessworks6.sonar.plugin.check.process;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
@@ -12,36 +9,35 @@ import com.tibco.businessworks6.sonar.plugin.profile.ProcessSonarWayProfile;
 import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
 import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
-import com.tibco.utils.bw.model.Process;
-import com.tibco.utils.bw.model.Transition;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwTransition;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
+import java.util.Collection;
 
-@Rule(key = TransitionLabelCheck.RULE_KEY, name="Transition Labels Check", priority = Priority.MAJOR, description = "This rule checks whether the transitions with the type 'Success With Condition' (XPath) have a proper label. This will improve code readability")
+@Rule(key = TransitionLabelCheck.RULE_KEY, name = "Transition Labels Check", priority = Priority.MAJOR, description = "This rule checks whether the transitions with the type 'Success With Condition' (XPath) have a proper label. This will improve code readability")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
-public class TransitionLabelCheck extends AbstractProcessCheck{
-	public static final String RULE_KEY = "TransitionLabels";
-	@Override
-	protected void validate(ProcessSource processSource) {
-		Process process = processSource.getProcessModel();
-		Map<String, Transition> transitions = process.getTransitions();
-		Iterator<Map.Entry<String,Transition>> it = transitions.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, Transition> pair = (Map.Entry<String, Transition>)it.next();
-			Transition transition = pair.getValue();
-			//System.out.println("Line Number: "+transition.getLineNumber() + newline+"Transition Name :"+pair.getKey() + newline+"Transition From: " + transition.getFrom()+newline+"Transition To: "+transition.getTo()+newline+"Transition Type: "+transition.getConditionType()+newline+"Transition XPath: "+transition.getXpath()+newline+"Label :"+transition.getLabel());
-			if (transition.getConditionType() != null && transition.getConditionType().equals("SUCCESSWITHCONDITION") && transition.getLabel() == null) {
-				if(transition.getFrom() == null){
-					String name = transition.getName();
-					transition.setFrom(name.substring(0, name.indexOf("To")));
-				}
-				if(transition.getTo() == null){
-					String name = transition.getName();
-					transition.setTo(name.substring(name.indexOf("To")+2,name.length()));
-				}
-					Violation violation = new DefaultViolation(getRule(),
-							transition.getLineNumber(),
-							"The transition from "+transition.getFrom()+" to "+transition.getTo()+" doesn't have a proper label");
-					processSource.addViolation(violation);
-				}
-		}
-	}
+public class TransitionLabelCheck extends AbstractProcessCheck {
+
+    public static final String RULE_KEY = "TransitionLabels";
+
+    @Override
+    protected void validate(ProcessSource processSource) {
+        BwProcess process = processSource.getProcessModel();
+        if (process != null) {
+            debug(process, "Start: " + this.getClass().getName());
+            Collection<BwTransition> transitions = process.getTransitionList();
+            for (BwTransition t : transitions) {
+                if ("SUCCESSWITHCONDITION".equals(t.getType()) && (t.getDescription() == null || "".equals(t.getDescription().trim()))) {
+                    info(process, "The transition doesn't have a proper label");
+                    Violation violation = new DefaultViolation(getRule(),
+                            t.getLineNumber(),
+                            //"The transition doesn't have a proper label"
+                            l10n.format(LocalizationMessages.SONAR_BW_TRANSITION_XPATH_NO_DESCRIPTION_TEXT_ISSUE)
+                            );
+                    processSource.addViolation(violation);
+                }
+            }
+            debug(process, "End: " + this.getClass().getName());
+        }
+    }
 }

@@ -1,0 +1,44 @@
+package com.tibco.businessworks6.sonar.plugin.services.l10n;
+
+public interface LocalizationMessages {
+    String SONAR_BW_NUMBER_SERVICES_CHECK_LABEL = "sonar.bw6.number_services.check.label";
+    String SONAR_BW_CHOICE_NO_OTHERWISE_CHECK_LABEL = "sonar.bw6.choice_no_otherwise.check.label";
+    String SONAR_BW_LOG_ONLY_SUBPROCESS_CHECK_LABEL = "sonar.bw6.log_subprocess.check.label";
+    String SONAR_BW_MULTIPLE_TRANSITION_CHECK_LABEL = "sonar.bw6.multiple_transition.check.label";
+    String SONAR_BW_SUBPROCESS_IN_LINE_CHECK_LABEL = "sonar.bw6.subprocess_inline.check.label";
+    String SONAR_BW_NUMBER_ACTIVITIES_CHECK_LABEL = "sonar.bw6.number_activities.check.label";
+    String SONAR_BW_NO_DESCRIPTION_CHECK_LABEL = "sonar.bw6.no_description.check.label";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_DESCRIPTOR_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.descriptor.convention.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_LOCATION_DESCRIPTOR_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.descriptor.location.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_PROCESS_PROPERTY_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.process.property.convention.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_SCHEMAS_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.schemas.convention.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_LOCATION_SCHEMAS_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.schemas.location.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_LOCATION_MODULE_PROPERTY_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.module_property.location.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_LOCATION_RESOURCE_TEXT_ISSUE = "sonar.bw6.project.profile.location.resource.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_LOCATION_PROCESS_TEXT_ISSUE = "sonar.bw6.project.profile.location.process.text.issue";
+    String SONAR_BW_SHARED_VARIABLE_NOT_USED_TEXT_ISSUE = "sonar.bw6.check.shared.variable.used.violation.text";
+    String SONAR_BW_PROCESS_PROPERTY_NOT_USED_TEXT_ISSUE = "sonar.bw6.check.process.property.used.violation.text";
+    String SONAR_BW_PROJECT_VERSION_TEXT_ISSUE = "sonar.bw6.check.project.version.violation.text.1";
+    String SONAR_BW_LIBRARY_VERSION_ISSUE_TEXT = "sonar.bw6.check.library.version.violation.text.1";
+    String SONAR_BW_MODULE_PROPERTY_NOT_USED_TEXT_ISSUE = "sonar.bw6.check.module.property.used.violation.text";
+    String SONAR_BW_TRANSITION_XPATH_NO_DESCRIPTION_TEXT_ISSUE = "sonar.bw6.xpath.transition.without.description.violation.text";
+    String SONAR_BW_PROJECT_ENCODING_TEXT_ISSUE = "sonar.bw6.check.vcrepo.violation.text.1";
+    String SONAR_BW_PROCESS_ACTIVITES_DISCONNECTD_ACTIVITY_TRANSITIONS_START_TRANSITION_ISSUE = "sonar.bw6.activity.transitions.start.transition.violation";
+    String SONAR_BW_PROCESS_ACTIVITIES_DISCONNECTED_ACTIVITY_TRANSITIONS_END_TRANSITION_ISSUE = "sonar.bw6.activity.transitions.end.transition.violation";
+    String SONAR_BW_SHARED_RESOURCE_NOT_USING_GV_TEXT_ISSUE = "sonar.bw6.check.shared.resources.gv.check.violation.text";
+    String SONAR_BW_SHARED_RESOURCE_NOT_FILLED_TEXT_ISSUE = "sonar.bw6.check.shared.resources.required.check.violation.text";
+    String SONAR_BW_SHARED_RESOURCE_NOT_USED_TEXT_ISSUE = "sonar.bw6.check.shared.resources.used.check.violation.text";
+    String SONAR_BW_PROCESS_ACTIVITIES_EXCEEDED_ISSUE = "sonar.bw6.too.many.bw6.activities.1";
+    String SONAR_BW_CHECK_EAR_DEPLOYMENT_VIOLATION_TEXT = "sonar.bw6.check.ear.deployment.violation.text";
+    String SONAR_BW_PROCESS_ACTIVITIES_DISCONNECTED_GROUP_TRANSITION_START_TRANSITION_ISSUE = "sonar.bw6.group.transitions.start.transition.violation";
+    String SONAR_BW_PROCESS_ACTIVITIES_DISCONNECTED_GROUP_TRANSITIONS_END_TRANSITION_ISSUE = "sonar.bw6.group.transitions.end.transition.violation";
+    String SONAR_BW_PROCESS_ACTIVITIES_HARDCODED_TEXT_ISSUE = "sonar.bw6.process.acitivities.hardcoded.text.issue";
+    String SONAR_BW_PROCESS_CALL_PROCESS_ACTIVITY_SPAWN_TEXT_ISSUE = "sonar.bw6.process.call.process.activity.spawn.text.issue";
+    String SONAR_BW_TRANSITION_XPATH_NO_OTHERWISE_TEXT_ISSUE = "sonar.bw6.transition.xpath.no.otherwise.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_PROCESS_TEXT_ISSUE = "sonar.bw6.project.profile.convention.process.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_MODULE_PROPERTY_VARIABLE_TEXT_ISSUE = "sonar.bw6.project.profile.convention.global.variable.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_RESOURCE_TEXT_ISSUE = "sonar.bw6.project.profile.convention.resource.text.issue";
+    String SONAR_BW_PROJECT_PROFILE_CONVENTION_ACTIVITY_TEXT_ISSUE = "sonar.bw6.project.profile.convention.activity.text.issue";
+    String SONAR_BW_VIEWS_PROCESS_VIEW_TITLE = "tibco.bw6.process.title";
+    String SONAR_BW_VIEWS_ISSUES_VIEW_TITLE = "tibco.bw6.issues.title";
+}

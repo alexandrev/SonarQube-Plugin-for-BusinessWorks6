@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<SharedResourceProperties xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <SharedResource name="HTTP Connection" type="httpconnector:HttpConnectorConfiguration">
+        <Property name="host" required="true" binding="true"/>
+        <Property name="port" required="true" binding="true"/>
+    </SharedResource>
+</SharedResourceProperties>

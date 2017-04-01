@@ -12,26 +12,42 @@ import com.tibco.businessworks6.sonar.plugin.profile.ProcessSonarWayProfile;
 import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
 import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
-import com.tibco.utils.bw.model.Activity;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
 
-@Rule(key = JDBCWildCardCheck.RULE_KEY, name="JDBC WildCard Check", priority = Priority.MAJOR, description = "This rule checks whether JDBC activities are using wildcards in the query. As a good coding practice, never use wildcards in JDBC queries.")
+@Rule(key = JDBCWildCardCheck.RULE_KEY, name = "JDBC WildCard Check", priority = Priority.MAJOR, description = "This rule checks whether JDBC activities are using wildcards in the query. As a good coding practice, never use wildcards in JDBC queries.")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
-public class JDBCWildCardCheck extends AbstractProcessCheck{
-	public static final String RULE_KEY = "JDBCWildcards";
+public class JDBCWildCardCheck extends AbstractProcessCheck {
 
-	@Override
-	protected void validate(ProcessSource processSource) {
-		List<Activity> list = processSource.getProcessModel().getActivities();
-		for (Iterator<Activity> iterator = list.iterator(); iterator.hasNext();) {
-			Activity activity = iterator.next();
-			String sqlStatement = activity.getSqlStatement();
-			if(sqlStatement != null && sqlStatement.contains("*")){
-				Violation violation = new DefaultViolation(getRule(),
-						1,
-						"WildCards should not be used in a JDBC Query. Use correct colomn names in JDBC query for activity "+activity.getName()+" from process "+processSource.getProcessModel().getName());
-				processSource.addViolation(violation);
-			}
-		}
-		
-	}
+    public static final String RULE_KEY = "JDBCWildcards";
+
+    @Override
+    protected void validate(ProcessSource processSource) {
+        BwProcess process = processSource.getProcessModel();
+        if (process != null) {
+            List<BwActivity> activities = process.getFullActivityList();
+            if (activities != null) {
+                for (BwActivity activity : activities) {
+                    boolean raise = false;
+                    if (activity.getType() != null && activity.getType().contains("jdbc")) {
+                        if (activity.getConfig("sqlStatement") != null && activity.getConfig("sqlStatement").contains("*")) {
+                            raise = true;
+                        }
+                        if (activity.getBinding("expression") != null && activity.getBinding("expression").contains("*")) {
+                            raise = true;
+                        }
+                    }
+                    if (raise) {
+                        Violation violation = new DefaultViolation(getRule(),
+                                activity.getLine(),
+                                "WildCards should not be used in a JDBC Query. Use correct colomn names in JDBC query for activity " + activity.getName() + " from process " + processSource.getProcessModel().getName());
+                        processSource.addViolation(violation);
+                    }
+                }
+            }
+
+        }
+        
+
+    }
 }

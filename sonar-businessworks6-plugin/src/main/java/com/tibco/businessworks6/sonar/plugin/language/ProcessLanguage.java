@@ -58,9 +58,11 @@ public class ProcessLanguage extends AbstractBusinessWorksLanguage {
 	/**
 	 * Default Process files knows suffixes
 	 */
-	//public static final String[] DEFAULT_FILE_SUFFIXES = { ".process" };
-	public static final String[] DEFAULT_FILE_SUFFIXES = { ".bwp" };
-	public String[] getFileSuffixes() {
+	public static final String[] DEFAULT_FILE_SUFFIXES = { "substvar", "bwm", "jsv", "msv", "bwp", "*Resource", "xml", "wsdl" };
+	
+        public static final String[] NON_RESOURCES_SUFFIXES = { "substvar", "bwm", "jsv", "msv", "bwp", "xml", "wsdl" };
+        
+        public String[] getFileSuffixes() {
 		return getFileSuffixes(FILE_SUFFIXES_KEY, DEFAULT_FILE_SUFFIXES);
 	}
 

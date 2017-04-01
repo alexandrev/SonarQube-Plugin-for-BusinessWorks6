@@ -1,0 +1,18 @@
+<%
+   process = @snapshot.measure('bw6')
+%>
+<div class="violations_header tab_header"></div>
+<% if process && process.data %>
+<div class="code-global-issues">
+    <% process_diagram, *restElement = process.data.split(/@@/)%>
+    <%= process_diagram %>
+</div>
+<% else %>     
+<div class="code-issue">
+    <div class="code-issue-name">
+        <span class="rulename"> This item doesn't support graphical visualization </span>
+    </div>
+</div>
+<% end %>
+    
+

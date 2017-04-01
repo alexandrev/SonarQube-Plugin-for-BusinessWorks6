@@ -17,37 +17,62 @@
  */
 package com.tibco.businessworks6.sonar.plugin.check;
 
+import com.tibco.businessworks6.sonar.plugin.check.process.NumberofActivitiesCheck;
+import com.tibco.businessworks6.sonar.plugin.data.model.Loggable;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationService;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.impl.LocalizationServiceImpl;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 
 import com.tibco.businessworks6.sonar.plugin.source.Source;
+import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
+import com.tibco.businessworks6.sonar.plugin.violation.Violation;
+import org.apache.log4j.Logger;
 
 /**
  * Abtract superclass for checks.
- * 
+ *
  * @author Kapil Shivarkar
  */
 public abstract class AbstractCheck {
 
-	protected Rule rule;
-	protected RuleKey ruleKey;
+    protected LocalizationService l10n = LocalizationServiceImpl.getInstance();
+    protected Logger LOG = Logger.getLogger(this.getClass());
+    protected Rule rule;
+    protected RuleKey ruleKey;
 
-	public RuleKey getRuleKey() {
-		return ruleKey;
-	}
+    public RuleKey getRuleKey() {
+        return ruleKey;
+    }
 
-	public void setRuleKey(RuleKey ruleKey) {
-		this.ruleKey = ruleKey;
-	}
+    public void setRuleKey(RuleKey ruleKey) {
+        this.ruleKey = ruleKey;
+    }
 
-	public final void setRule(Rule rule) {
-		this.rule = rule;
-	}
-	
-	public Rule getRule(){
-		return rule;
-	}
-	
-	public abstract <S extends Source> S validate(S source);
+    public final void setRule(Rule rule) {
+        this.rule = rule;
+    }
+
+    public Rule getRule() {
+        return rule;
+    }
+
+    public abstract <S extends Source> S validate(S source);
+
+    public void addError(int lineNumber, String message, Source source) {
+        Violation violation = new DefaultViolation(getRule(),
+                lineNumber,
+                message);
+        source.addViolation(violation);
+    }
+    
+    public void debug(Loggable obj,String message){
+        LOG.debug("["+obj.getID()+"] " + message);
+    }
+    
+    public void info(Loggable obj,String message){
+        LOG.info("["+obj.getID()+"] " + message);
+    }
+    
 
 }

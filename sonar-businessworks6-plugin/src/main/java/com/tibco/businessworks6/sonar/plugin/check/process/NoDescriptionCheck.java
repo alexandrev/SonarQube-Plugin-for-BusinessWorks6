@@ -22,45 +22,40 @@ package com.tibco.businessworks6.sonar.plugin.check.process;
 import org.sonar.check.BelongsToProfile;
 import org.sonar.check.Priority;
 import org.sonar.check.Rule;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.tibco.businessworks6.sonar.plugin.check.AbstractProcessCheck;
 import com.tibco.businessworks6.sonar.plugin.profile.ProcessSonarWayProfile;
 import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
 import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
-import com.tibco.utils.bw.helper.XmlHelper;
-import com.tibco.utils.bw.model.Process;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 
-@Rule(key = NoDescriptionCheck.RULE_KEY, name="No Process Description Check", priority = Priority.MINOR, description = "This rule checks if there is description specified for a process.")
+@Rule(key = NoDescriptionCheck.RULE_KEY, name = "No Process Description Check", priority = Priority.MINOR, description = "This rule checks if there is description specified for a process.")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MINOR)
 public class NoDescriptionCheck extends AbstractProcessCheck {
 
-	public static final String RULE_KEY = "ProcessNoDescription";
-	public static final String DESCRIPTION_ELEMENT_NAME = "documentation";
-	public static final String DESCRIPTION_ELEMENT_NAMESPACE = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
+    public static final String RULE_KEY = "ProcessNoDescription";
+    public static final String DESCRIPTION_ELEMENT_NAME = "documentation";
+    public static final String DESCRIPTION_ELEMENT_NAMESPACE = "http://docs.oasis-open.org/wsbpel/2.0/process/executable";
 
-	@Override
-	protected void validate(ProcessSource processSource) {
-		Process process = processSource.getProcessModel();
-		Document document = process.getProcessXmlDocument();
-		try {
-			Element description = XmlHelper.firstChildElement(
-					document.getDocumentElement(),
-					DESCRIPTION_ELEMENT_NAMESPACE, DESCRIPTION_ELEMENT_NAME);
-			if (description.getTextContent() == null
-					|| description.getTextContent().isEmpty()) {
-				Violation violation = new DefaultViolation(getRule(),
-						processSource.getLineForNode(description),
-						"Empty description for this process");
-				processSource.addViolation(violation);
-			}
-		} catch (Exception e) {
-			Violation violation = new DefaultViolation(getRule(), 1,
-					"No description found in this process");
-			processSource.addViolation(violation);
-		}
-	}
+    @Override
+    protected void validate(ProcessSource processSource) {
+        BwProcess process = processSource.getProcessModel();
+        if (process != null) {
+            debug(process,"Start: "+this.getClass().getName());
+            String description = process.getDescription();
+            if (description == null
+                    || description.isEmpty()) {
+                Violation violation = new DefaultViolation(getRule(),
+                        process.getLine(),
+                        //"Empty description for this process"
+                        l10n.format(LocalizationMessages.SONAR_BW_NO_DESCRIPTION_CHECK_LABEL));
+                processSource.addViolation(violation);
+            }
+            debug(process,"End: "+this.getClass().getName());
+            
+        }
+    }
 
 }
