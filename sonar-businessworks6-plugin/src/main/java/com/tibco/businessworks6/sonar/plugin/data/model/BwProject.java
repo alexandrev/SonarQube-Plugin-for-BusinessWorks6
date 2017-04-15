@@ -1,6 +1,5 @@
 package com.tibco.businessworks6.sonar.plugin.data.model;
 
-
 import com.tibco.businessworks6.sonar.plugin.data.model.helper.XmlHelper;
 import java.io.File;
 import java.util.ArrayList;
@@ -21,37 +20,51 @@ public class BwProject {
     private List<BwModuleProperty> globalVariables;
 
     protected List<BwSharedResource> sharedResourcesList;
-    
+
     private Collection<BwSharedVariable> sharedVariables;
-   
+    
+    private Collection<BwXmlResource> descriptors;
+    
+    private Collection<BwXmlResource> schemas;
+
     private List<BwProcess> process;
 
     private String encoding;
 
     protected String version;
-    
+
     private File bwmFile = new File(System.getProperty("user.dir") + "/META-INF/module.bwm");
 
     private BwSharedResource versionNode;
 
     private static BwProject INSTANCE;
-    
-    private File file;
-    
-    private FileSystem fileSystem;
 
+    private File file;
+
+    private FileSystem fileSystem;
 
     public static BwProject getInstance() {
 
-        if( INSTANCE == null){
+        if (INSTANCE == null) {
             INSTANCE = new BwProject();
         }
-        
+
         return INSTANCE;
     }
-   
+
     private BwProject() {
-        
+
+    }
+
+    public Collection<BwSharedResource> getResourceFromType(BwSharedResource.BWResources type) {
+        ArrayList<BwSharedResource> tmp = new ArrayList<>();
+        for (BwSharedResource shared :sharedResourcesList ) {
+            if(type != null && type.equals(shared.getResourceType())){
+                tmp.add(shared);
+            }
+            
+        }
+        return tmp;
     }
 
     /**
@@ -156,7 +169,6 @@ public class BwProject {
         return 6;
     }
 
-
     public void init(File file) {
         this.file = file;
         LOG.debug("Initializing the BwProject: " + getFile().getAbsolutePath());
@@ -164,100 +176,100 @@ public class BwProject {
         sharedResourcesList = new ArrayList<BwSharedResource>();
         process = new ArrayList<BwProcess>();
         parseGlobalVariables();
-        setSharedVariables(parseSharedVariables("jsv","//jobSharedVariable",BwSharedVariable.Scope.JOB));
-        getSharedVariables().addAll(parseSharedVariables("msv","//moduleSharedVariable",BwSharedVariable.Scope.MODULE));
+        setSharedVariables(parseSharedVariables("jsv", "//jobSharedVariable", BwSharedVariable.Scope.JOB));
+        getSharedVariables().addAll(parseSharedVariables("msv", "//moduleSharedVariable", BwSharedVariable.Scope.MODULE));
         LOG.debug("Initialized the BwProject: " + getFile().getAbsolutePath());
-        
+
     }
 
     private void parseGlobalVariables() {
         Collection<File> files = FileUtils.listFiles(getFile(), new String[]{"substvar"}, true);
-        if(files != null){
-            LOG.debug("Global variable files recovered: "+files.size());
-            for(File fFile : files){
-                LOG.debug("Recovering: "+fFile.getAbsolutePath());
+        if (files != null) {
+            LOG.debug("Global variable files recovered: " + files.size());
+            for (File fFile : files) {
+                LOG.debug("Recovering: " + fFile.getAbsolutePath());
                 Document document = XmlHelper.getDocument(fFile);
-                if(document != null){
+                if (document != null) {
                     NodeList nodeList = XmlHelper.evaluateXPath(document, "/*[1]/*[1]/*");
-                    if(nodeList != null){
-                        for(int i=0;i<nodeList.getLength();i++){
+                    if (nodeList != null) {
+                        for (int i = 0; i < nodeList.getLength(); i++) {
                             Element node = (Element) nodeList.item(i);
-                            if(node != null){
+                            if (node != null) {
                                 LOG.debug("Global variable extracted");
                                 BwModuleProperty bVar = new BwModuleProperty();
                                 String name = XmlHelper.extractValueNoNS(node, "name");
                                 bVar.setName(name);
-                                LOG.debug("BW GVAR Name: "+name);
+                                LOG.debug("BW GVAR Name: " + name);
                                 String value = XmlHelper.extractValueNoNS(node, "value");
                                 bVar.setValue(value);
-                                LOG.debug("BW GVAR Value: "+value);
+                                LOG.debug("BW GVAR Value: " + value);
                                 String deploymentSettable = XmlHelper.extractValueNoNS(node, "deploymentSettable");
                                 bVar.setDeploymentSettable(Boolean.parseBoolean(deploymentSettable));
-                                LOG.debug("BW GVAR Deployment Settable: "+deploymentSettable);
-                                
+                                LOG.debug("BW GVAR Deployment Settable: " + deploymentSettable);
+
                                 String serviceSettable = XmlHelper.extractValueNoNS(node, "serviceSettable");
                                 bVar.setServiceSettable(Boolean.parseBoolean(serviceSettable));
-                                LOG.debug("BW GVAR Service Settable: "+serviceSettable);
-                                
+                                LOG.debug("BW GVAR Service Settable: " + serviceSettable);
+
                                 String type = XmlHelper.extractValueNoNS(node, "type");
                                 bVar.setType(type);
-                                LOG.debug("BW GVAR Type: "+type);
-                                
+                                LOG.debug("BW GVAR Type: " + type);
+
                                 String isOverride = XmlHelper.extractValueNoNS(node, "isOverride");
                                 bVar.setOverride(Boolean.parseBoolean(isOverride));
-                                LOG.debug("BW GVAR isOverride: "+isOverride);
-                                
+                                LOG.debug("BW GVAR isOverride: " + isOverride);
+
                                 String modTime = XmlHelper.extractValueNoNS(node, "modTime");
-                                LOG.debug("BW GVAR modTime: "+modTime);
-                                if(modTime != null && !modTime.isEmpty()){
+                                LOG.debug("BW GVAR modTime: " + modTime);
+                                if (modTime != null && !modTime.isEmpty()) {
                                     bVar.setModTime(new Date(Long.parseLong(modTime)));
                                 }
-                                
+
                                 globalVariables.add(bVar);
                             }
                         }
                     }
-                    
+
                 }
             }
         }
-        
+
     }
 
-    private Collection<BwSharedVariable> parseSharedVariables(String extension, String xpath, BwSharedVariable.Scope scope ) {
+    private Collection<BwSharedVariable> parseSharedVariables(String extension, String xpath, BwSharedVariable.Scope scope) {
         Collection<File> files = FileUtils.listFiles(getFile(), new String[]{extension}, true);
         Collection<BwSharedVariable> out = new ArrayList<BwSharedVariable>();
-        if(files != null){
-            LOG.debug("Global variable files recovered: "+files.size());
-            for(File fFile : files){
-                LOG.debug("Recovering: "+fFile.getAbsolutePath());
+        if (files != null) {
+            LOG.debug("Global variable files recovered: " + files.size());
+            for (File fFile : files) {
+                LOG.debug("Recovering: " + fFile.getAbsolutePath());
                 Document document = XmlHelper.getDocument(fFile);
-                if(document != null){
+                if (document != null) {
                     NodeList nodeList = XmlHelper.evaluateXPath(document, xpath);
-                    if(nodeList != null){
-                        for(int i=0;i<nodeList.getLength();i++){
+                    if (nodeList != null) {
+                        for (int i = 0; i < nodeList.getLength(); i++) {
                             Element node = (Element) nodeList.item(i);
-                            if(node != null){
+                            if (node != null) {
                                 LOG.debug("Shared variable extracted");
                                 BwSharedVariable bVar = new BwSharedVariable();
                                 String name = XmlHelper.extractValueAttr(node, "name");
                                 bVar.setName(name);
-                                LOG.debug("BW SHARED VAR Name: "+name);
+                                LOG.debug("BW SHARED VAR Name: " + name);
                                 String value = XmlHelper.extractValueAttr(node, "initialValueMode");
                                 bVar.setInitialValue(value);
-                                LOG.debug("BW  SHARED VAR Value: "+value);
-                                
+                                LOG.debug("BW  SHARED VAR Value: " + value);
+
                                 String type = XmlHelper.extractValueAttr(node, "type");
                                 bVar.setType(type);
-                                LOG.debug("BW GVAR Type: "+type);
-                                
+                                LOG.debug("BW GVAR Type: " + type);
+
                                 bVar.setScope(scope);
-                                
+
                                 out.add(bVar);
                             }
                         }
                     }
-                    
+
                 }
             }
         }
@@ -293,13 +305,13 @@ public class BwProject {
     }
 
     public void addProcess(BwProcess process) {
-       this.process.add(process);
-       process.setProject(this);
+        this.process.add(process);
+        process.setProject(this);
     }
-    
-     public void addResource(BwSharedResource resource) {
-       this.sharedResourcesList.add(resource);
-       resource.setProject(this);
+
+    public void addResource(BwSharedResource resource) {
+        this.sharedResourcesList.add(resource);
+        resource.setProject(this);
     }
 
     /**
@@ -329,8 +341,33 @@ public class BwProject {
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
-    
-    
-  
-   
+
+    /**
+     * @return the descriptors
+     */
+    public Collection<BwXmlResource> getDescriptors() {
+        return descriptors;
+    }
+
+    /**
+     * @param descriptors the descriptors to set
+     */
+    public void setDescriptors(Collection<BwXmlResource> descriptors) {
+        this.descriptors = descriptors;
+    }
+
+    /**
+     * @return the schemas
+     */
+    public Collection<BwXmlResource> getSchemas() {
+        return schemas;
+    }
+
+    /**
+     * @param schemas the schemas to set
+     */
+    public void setSchemas(Collection<BwXmlResource> schemas) {
+        this.schemas = schemas;
+    }
+
 }

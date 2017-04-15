@@ -26,8 +26,10 @@ public class DeadLockCheck extends AbstractProjectCheck {
 
     @Override
     protected void validate(ProjectSource processSource) {
-        // whole logic is written in analyseDeadLock method of ProcessRuleSensor as this validation has to be taken place across processes
-
+       BwProject project = processSource.getResourceModel();
+       if(project != null){
+           analyseDeadLock(project);
+       }
     }
 
     protected void analyseDeadLock(BwProject project) {

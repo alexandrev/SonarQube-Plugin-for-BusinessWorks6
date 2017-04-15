@@ -6,8 +6,10 @@ import org.sonar.check.Priority;
 import org.sonar.check.Rule;
 
 import com.tibco.businessworks6.sonar.plugin.check.AbstractProcessCheck;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwGroup;
 import com.tibco.businessworks6.sonar.plugin.profile.ProcessSonarWayProfile;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
 import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
@@ -27,11 +29,28 @@ public class ForEachGroupCheck extends AbstractProcessCheck {
             Collection<BwGroup> groups = process.getGroupList();
             for (BwGroup group : groups) {
                 if ("for-each".equals(group.getType())) {
-                    //TODO Check if only mapper inside
-                    Violation violation = new DefaultViolation(getRule(),
-                            group.getLine(),
-                            "For-Each group is used in process.");
-                    processSource.addViolation(violation);
+                    Collection<BwActivity> activities = group.getActivityList();
+                    boolean mapper = true;
+                    if (activities != null) {
+                        for (BwActivity activity : activities) {
+                            String type = activity.getType();
+                            if (type != null && !type.contains("mapper")) {
+                                mapper = false;
+                                break;
+                            }
+
+                        }
+                    }
+
+                    if (mapper) {
+                        Violation violation = new DefaultViolation(getRule(),
+                                group.getLine(),
+                                //"For-Each group is used in process."
+                                l10n.format(LocalizationMessages.SONAR_BW_FOR_EACH_GROUP_CHECK_LABEL)
+                        );
+
+                        processSource.addViolation(violation);
+                    }
                 }
             }
         }

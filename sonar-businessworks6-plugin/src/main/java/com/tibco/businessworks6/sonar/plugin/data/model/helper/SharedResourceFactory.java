@@ -2,7 +2,7 @@ package com.tibco.businessworks6.sonar.plugin.data.model.helper;
 
 import com.tibco.businessworks6.sonar.plugin.data.model.SharedResourceProperties;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwSharedResource;
-import com.tibco.businessworks6.sonar.plugin.language.ProcessLanguage;
+import com.tibco.businessworks6.sonar.plugin.language.BusinessWorks6Language;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +15,6 @@ import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
-import org.sonar.api.resources.Resource;
 
 
 public final class SharedResourceFactory {
@@ -32,7 +31,7 @@ public final class SharedResourceFactory {
 
     public static boolean isResource(File inputfile) {
         String ext = FilenameUtils.getExtension(inputfile.getName());
-        return !Arrays.asList(ProcessLanguage.NON_RESOURCES_SUFFIXES).contains(ext);
+        return !Arrays.asList(BusinessWorks6Language.INSTANCE.getNonResourceSuffixes()).contains(ext);
     }
 
     private Properties extensionMapper;

@@ -17,6 +17,7 @@
  */
 package com.tibco.businessworks6.sonar.plugin.sensor;
 
+import com.tibco.businessworks6.sonar.plugin.BwConstants;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.HashMap;
@@ -34,7 +35,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rule.RuleKey;
 import com.tibco.businessworks6.sonar.plugin.check.AbstractCheck;
 import com.tibco.businessworks6.sonar.plugin.check.project.DeadLockCheck;
-import com.tibco.businessworks6.sonar.plugin.language.ProcessLanguage;
 import com.tibco.businessworks6.sonar.plugin.metric.BusinessWorksMetrics;
 import com.tibco.businessworks6.sonar.plugin.rulerepository.ProcessRuleDefinition;
 import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
@@ -44,9 +44,12 @@ import com.tibco.businessworks6.sonar.plugin.data.model.BwProject;
 import com.tibco.businessworks6.sonar.plugin.data.model.ModuleProperties;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwSharedResource;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwXmlResource;
+import com.tibco.businessworks6.sonar.plugin.language.BusinessWorks6Language;
 import java.util.Arrays;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
+import org.sonar.api.config.Settings;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -58,10 +61,10 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
     private Resource processFileResource;
     private static final Logger LOG = Logger.getLogger(ProcessRuleSensor.class);
 
-    public ProcessRuleSensor(RulesProfile profile, FileSystem fileSystem,
+    public ProcessRuleSensor(Settings settings,RulesProfile profile, FileSystem fileSystem,
             ResourcePerspectives resourcePerspectives, CheckFactory checkFactory) {
-        super(profile, fileSystem, resourcePerspectives,
-                ProcessRuleDefinition.REPOSITORY_KEY, ProcessLanguage.KEY, checkFactory);
+        super(settings,profile, fileSystem, resourcePerspectives,
+                BwConstants.REPOSITORY_KEY, BwConstants.LANGUAGE_KEY, checkFactory);
     }
 
     private boolean isProcess(InputFile resource) {
@@ -70,37 +73,33 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
 
     private boolean isResource(InputFile resource) {
         String ext = FilenameUtils.getExtension(resource.file().getName());
-        return !Arrays.asList(ProcessLanguage.NON_RESOURCES_SUFFIXES).contains(ext);
+        return !Arrays.asList(BusinessWorks6Language.INSTANCE.getNonResourceSuffixes()).contains(ext);
+    }
+    
+    public boolean isDescriptor(BwXmlResource resource) {
+        boolean out = false;
+        if(resource != null){
+            File file = resource.getFile();
+            if(file != null){
+                out = file.getName().toLowerCase().endsWith(".wsdl");
+            }
+        }
+        return out;
+    }
+
+    public boolean isSchema(BwXmlResource resource) {
+        boolean out = false;
+        if(resource != null){
+            File file = resource.getFile();
+            if(file != null){
+                out = file.getName().toLowerCase().endsWith(".xsd");
+            }
+        }
+        return out;
+    
     }
 
     private final BwProject bwProject = BwProject.getInstance();
-
-    public enum BWResources {
-        HTTPClient,
-        XMLAuthentication,
-        WSSAuthentication,
-        TrustProvider,
-        ThrealPool,
-        TCPConnection,
-        SubjectProvider,
-        SSLServerConfiguration,
-        SSLClientConfiguration,
-        SMTPResource,
-        RendezvousTransport,
-        ProxyConfiguration,
-        LDAPAuthentication,
-        KeystoreProvider,
-        JNDIConfiguration,
-        JMSConnection,
-        JDBCConnection,
-        JavaGlobalInstance,
-        IdentityProvider,
-        HTTPConnector,
-        FTPConnection,
-        FTLRealmServerConnection,
-        DataFormat,
-        SQLFile
-    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -122,6 +121,13 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
             BwSharedResource sharedResource = resourceSource.getResourceModel();
             sharedResource.setResource(resource);
             bwProject.addResource(sharedResource);
+        } else {
+            BwXmlResource xmlResource = new BwXmlResource(resource);
+            if (isDescriptor(xmlResource)) {
+                bwProject.getDescriptors().add(xmlResource);
+            } else if (isSchema(xmlResource)) {
+                bwProject.getSchemas().add(xmlResource);
+            }
         }
 
         if (sourceCode != null && sourceCode.parseSource(fileSystem.encoding())) {
@@ -139,12 +145,8 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
     }
 
     @Override
-    protected void analyseDeadLock(Iterable<File> filesIterable) {
-        //TODO CALL!
-    }
-
-    @Override
     public void processMetrics() {
+        LOG.debug("processMetrics START");
         int moduleProperties = getPropertiesCount(".bwm");
         int groupsProcess = 0;
         int activitiesProcess = 0;
@@ -161,14 +163,16 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
         int subservice = 0;
         int subreference = 0;
 
+        LOG.debug("Adding metrics for each process in the project");
         for (Iterator<BwProcess> iterator = bwProject.getProcess().iterator(); iterator.hasNext();) {
             BwProcess process = iterator.next();
+            LOG.debug("Metrics from: " + process.getName());
             groupsProcess += process.getGroupList().size();
             activitiesProcess += process.getFullActivityList().size();
             transitionsProcess += process.getTransitionList().size();
             processStarters += process.getEventSourcesCount();
-            catchBlocks += 1; //process.getCatchcount();
-            eventHandlers += 1; //process.getEventHandler();
+            catchBlocks += process.getCatchList().size();
+            eventHandlers += process.getEventHandlerList().size();
             services += process.getServices().size();
             if (process.isSubProcess()) {
                 subprocesscount++;
@@ -181,7 +185,7 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
         if (sensorContext.getMeasure(BusinessWorksMetrics.BWLANGUAGEFLAG) == null) {
             saveMeasure(BusinessWorksMetrics.BWLANGUAGEFLAG, (double) 1);
         }
-        //processFileResource = sensorContext.getResource(ProcessFileResource.fromIOFile(file, project));
+
         saveMeasure(BusinessWorksMetrics.PROCESSES, (double) noOfProcesses);
         saveMeasure(BusinessWorksMetrics.SUBPROCESSES, (double) subprocesscount);
         saveMeasure(BusinessWorksMetrics.GROUPS, (double) groupsProcess);
@@ -197,90 +201,22 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
         saveMeasure(BusinessWorksMetrics.SERVICES, (double) services);
         saveMeasure(BusinessWorksMetrics.SUBSERVICES, (double) subservice);
         saveMeasure(BusinessWorksMetrics.SUBREFERENCE, (double) subreference);
+        //TODO CALCULATE
         saveMeasure(BusinessWorksMetrics.PROJECTCOMPLEXITY, "MEDIUM");
         saveMeasure(BusinessWorksMetrics.CODEQUALITY, "AVERAGE");
-        Metric[] metric = BusinessWorksMetrics.resourceMetrics();
-        BWResources bwresource;
+
+        LOG.debug("Get resource metrics");
+        Metric[] metric = BusinessWorksMetrics.BWRESOURCES_METRICS_LIST;
+
+        LOG.debug("Resouce Metrics Size: " + metric.length);
         for (int i = 0; i < metric.length; i++) {
-            bwresource = BWResources.valueOf(metric[i].getName().replaceAll("\\s", ""));
-            switch (bwresource) {
-                case HTTPClient:
-                    saveMeasure(BusinessWorksMetrics.BWRESOURCES_HTTP_CONNECTION_FLAG, (double) 1);
-                    break;
-                case XMLAuthentication:
-                    saveMeasure(BusinessWorksMetrics.XML_AUTHENTICATION_FLAG, (double) 1);
-                    break;
-                case WSSAuthentication:
-                    saveMeasure(BusinessWorksMetrics.WSS_Authentication_FLAG, (double) 1);
-                    break;
-                case TrustProvider:
-                    saveMeasure(BusinessWorksMetrics.Trust_Provider_Flag, (double) 1);
-                    break;
-                case ThrealPool:
-                    saveMeasure(BusinessWorksMetrics.Threal_Pool_Flag, (double) 1);
-                    break;
-                case TCPConnection:
-                    saveMeasure(BusinessWorksMetrics.TCP_Connection_Flag, (double) 1);
-                    break;
-                case SubjectProvider:
-                    saveMeasure(BusinessWorksMetrics.Subject_Provider_Flag, (double) 1);
-                    break;
-                case SSLServerConfiguration:
-                    saveMeasure(BusinessWorksMetrics.SSL_Server_Configuration_Flag, (double) 1);
-                    break;
-                case SSLClientConfiguration:
-                    saveMeasure(BusinessWorksMetrics.SSL_Client_Configuration_Flag, (double) 1);
-                    break;
-                case SMTPResource:
-                    saveMeasure(BusinessWorksMetrics.SMTP_Resource_Flag, (double) 1);
-                    break;
-                case RendezvousTransport:
-                    saveMeasure(BusinessWorksMetrics.RVTRANSPORTFLAG, (double) 1);
-                    break;
-                case ProxyConfiguration:
-                    saveMeasure(BusinessWorksMetrics.Proxy_Configuration_Flag, (double) 1);
-                    break;
-                case LDAPAuthentication:
-                    saveMeasure(BusinessWorksMetrics.LDAP_Authentication_Flag, (double) 1);
-                    break;
-                case KeystoreProvider:
-                    saveMeasure(BusinessWorksMetrics.Keystore_Provider_Flag, (double) 1);
-                    break;
-                case JNDIConfiguration:
-                    saveMeasure(BusinessWorksMetrics.JNDI_Configuration_Flag, (double) 1);
-                    break;
-                case JMSConnection:
-                    saveMeasure(BusinessWorksMetrics.BWRESOURCES_JMS_CONNECTION_FLAG, (double) 1);
-                    break;
-                case JDBCConnection:
-                    saveMeasure(BusinessWorksMetrics.BWRESOURCES_JDBC_CONNECTION_FLAG, (double) 1);
-                    break;
-                case JavaGlobalInstance:
-                    saveMeasure(BusinessWorksMetrics.Java_Global_Instance_Flag, (double) 1);
-                    break;
-                case IdentityProvider:
-                    saveMeasure(BusinessWorksMetrics.Identity_Provider_Flag, (double) 1);
-                    break;
-                case HTTPConnector:
-                    saveMeasure(BusinessWorksMetrics.BWRESOURCES_HTTP_CONNECTOR_FLAG, (double) 1);
-                    break;
-                case FTPConnection:
-                    saveMeasure(BusinessWorksMetrics.FTP_Connection_Flag, (double) 1);
-                    break;
-                case FTLRealmServerConnection:
-                    saveMeasure(BusinessWorksMetrics.FTL_Realm_Server_Connection_Flag, (double) 1);
-                    break;
-                case DataFormat:
-                    saveMeasure(BusinessWorksMetrics.Data_Format_Flag, (double) 1);
-                    break;
-                case SQLFile:
-                    saveMeasure(BusinessWorksMetrics.SQL_File_Flag, (double) 1);
-                    break;
-                default:
-                    break;
-            }
-            saveMeasure(metric[i], (double) foundResources.get(metric[i].getName()));
+            BwSharedResource.BWResources bwresource = BwSharedResource.BWResources.valueOf(metric[i].getKey());
+            LOG.debug("BW Resource: " + bwresource);
+            int size = bwProject.getResourceFromType(bwresource).size();
+            saveMeasure(metric[i], (double) size);
+            LOG.debug("BW Resource Count: " + size);
         }
+        LOG.debug("processMetrics END");
     }
 
     private void saveMeasure(Metric metric, double value) {
@@ -292,8 +228,6 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
     }
 
     public static Map<String, Integer> foundResources = new HashMap<>();
-
-    
 
     public int getPropertiesCount(final String fileExtension) {
         File dir = new File(System.getProperty("user.dir") + "/META-INF");
@@ -330,7 +264,7 @@ public class ProcessRuleSensor extends AbstractRuleSensor {
     @Override
     public boolean shouldExecuteOnProject(Project project) {
         /*return !fileSystem.files(FileQuery.onSource().onLanguage(ProcessLanguage.KEY))
-				.isEmpty();*/
+         .isEmpty();*/
         return fileSystem.files(fileSystem.predicates().hasLanguage(languageKey)).iterator().hasNext();
 
     }

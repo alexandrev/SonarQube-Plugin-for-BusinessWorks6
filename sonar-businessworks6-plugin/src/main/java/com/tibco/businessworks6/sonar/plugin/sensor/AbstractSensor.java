@@ -19,7 +19,6 @@ package com.tibco.businessworks6.sonar.plugin.sensor;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -32,7 +31,7 @@ import org.sonar.api.resources.Project;
 //import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.CheckFactory;
-import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import org.sonar.api.config.Settings;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -47,44 +46,18 @@ public abstract class AbstractSensor implements Sensor {
     protected String languageKey;
     protected Project project;
     protected SensorContext sensorContext;
+    protected Settings settings;
     public final CheckFactory checkFactory;
-    public static Map<String, String> resourceExtensionMapper = new HashMap<String, String>();
 
-    protected AbstractSensor(FileSystem fileSystem,
+    protected AbstractSensor(Settings settings,FileSystem fileSystem,
             ResourcePerspectives resourcePerspectives, String languageKey, CheckFactory checkFactory) {
+        this.settings = settings;
         this.fileSystem = fileSystem;
         this.resourcePerspectives = resourcePerspectives;
         this.languageKey = languageKey;
         this.checkFactory = checkFactory;
-        createResourceExtensionMapper(resourceExtensionMapper);
     }
 
-    public void createResourceExtensionMapper(Map<String, String> resourceExtensionMapper) {
-        resourceExtensionMapper.put(".httpClientResource", "HTTP Client");
-        resourceExtensionMapper.put(".authxml", "XML Authentication");
-        resourceExtensionMapper.put(".wssResource", "WSS Authentication");
-        resourceExtensionMapper.put(".trustResource", "Trust Provider");
-        resourceExtensionMapper.put(".threadPoolResource", "Threal Pool");
-        resourceExtensionMapper.put(".tcpResource", "TCP Connection");
-        resourceExtensionMapper.put(".sipResource", "Subject Provider");
-        resourceExtensionMapper.put(".sslServerResource", "SSL Server Configuration");
-        resourceExtensionMapper.put(".sslClientResource", "SSL Client Configuration");
-        resourceExtensionMapper.put(".smtpResource", "SMTP Resource");
-        resourceExtensionMapper.put(".rvResource", "Rendezvous Transport");
-        resourceExtensionMapper.put(".httpProxyResource", "Proxy Configuration");
-        resourceExtensionMapper.put(".ldapResource", "LDAP Authentication");
-        resourceExtensionMapper.put(".keystoreProviderResource", "Keystore Provider");
-        resourceExtensionMapper.put(".jndiConfigResource", "JNDI Configuration");
-        resourceExtensionMapper.put(".jmsConnResource", "JMS Connection");
-        resourceExtensionMapper.put(".jdbcResource", "JDBC Connection");
-        resourceExtensionMapper.put(".javaGlobalInstanceResource", "Java Global Instance");
-        resourceExtensionMapper.put(".userIdResource", "Identity Provider");
-        resourceExtensionMapper.put(".httpConnResource", "HTTP Connector");
-        resourceExtensionMapper.put(".ftpResource", "FTP Connection");
-        resourceExtensionMapper.put(".ftlResource", "FTL Realm Server Connection");
-        resourceExtensionMapper.put(".dataFormatResource", "Data Format");
-        resourceExtensionMapper.put(".sql", "SQL File");
-    }
 
     public void setLanguageKey(String languageKey) {
         this.languageKey = languageKey;
@@ -107,11 +80,8 @@ public abstract class AbstractSensor implements Sensor {
                         e);
             }
         }
-        analyseDeadLock(fileSystem.files(fileSystem.predicates().hasLanguage(languageKey)));
-        processMetrics();
+         processMetrics();
     }
-
-    protected abstract void analyseDeadLock(Iterable<File> filesIterable);
 
     protected abstract void processMetrics();
 

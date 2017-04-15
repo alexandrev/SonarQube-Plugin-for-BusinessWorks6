@@ -21,7 +21,8 @@ import org.sonar.api.web.CodeColorizerFormat;
 import org.sonar.colorizer.Tokenizer;
 
 import com.google.common.collect.ImmutableList;
-import com.tibco.businessworks6.sonar.plugin.language.ProcessLanguage;
+import com.tibco.businessworks6.sonar.plugin.BwConstants;
+import com.tibco.businessworks6.sonar.plugin.language.BusinessWorks6Language;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class BusinessWorksProcessColorizerFormat extends CodeColorizerFormat {
 	  private static final String END_TAG = "</span>";
 	
 	public BusinessWorksProcessColorizerFormat() {
-		super(ProcessLanguage.KEY);
+		super(BwConstants.LANGUAGE_KEY);
 	}
 
 	@Override

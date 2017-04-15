@@ -24,6 +24,7 @@ import org.sonar.api.resources.Project;
 //import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.config.Settings;
 
 /**
  * XmlSensor provides analysis of xml files.
@@ -32,9 +33,9 @@ import org.sonar.api.batch.rule.CheckFactory;
  */
 public abstract class AbstractMetricSensor extends AbstractSensor {
 	
-	protected AbstractMetricSensor(FileSystem fileSystem,
+	protected AbstractMetricSensor(Settings settings,FileSystem fileSystem,
 			ResourcePerspectives resourcePerspectives, String languageKey, CheckFactory checkFactory) {
-		super(fileSystem, resourcePerspectives, languageKey, checkFactory);
+		super(settings,fileSystem, resourcePerspectives, languageKey, checkFactory);
 	}
 
 	/**

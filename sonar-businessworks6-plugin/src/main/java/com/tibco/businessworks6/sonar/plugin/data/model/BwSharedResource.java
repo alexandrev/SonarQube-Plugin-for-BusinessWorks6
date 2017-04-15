@@ -18,6 +18,50 @@ import org.w3c.dom.NodeList;
 
 public class BwSharedResource  {
 
+    /**
+     * @return the resourceType
+     */
+    public BWResources getResourceType() {
+        return resourceType;
+    }
+
+    /**
+     * @param resourceType the resourceType to set
+     */
+    public void setResourceType(BWResources resourceType) {
+        this.resourceType = resourceType;
+    }
+
+    public enum BWResources {
+        http_HttpClientConfiguration,
+        authxml_XMLConfiguration,
+        wss_WSSConfiguration,
+        TrustProvider,
+        tp_ThreadPoolConfiguration,
+        tcpconnection_tcpconnection,
+        mip_MIPConfiguration,
+        sslserver_SSLServerConfiguration,
+        sslclient_SSLClientConfiguration,
+        smtp_SmtpConfiguration,
+        rvsharedresource_RVResource,
+        httpproxy_ProxyConfiguration,
+        ldapauth_LDAPConfiguration,
+        keystore_KeystoreConfiguration,
+        jms_JNDIConnection,
+        jms_JMSConnectionFactory,
+        jdbc_JdbcDataSource,
+        httpconnector_HttpConnectorConfiguration,
+        javasharedresource_JavaGlobalInstanceResource,
+        subject_SubjectConfiguration,
+        ftpconnection_ftpconnection,
+        ftlsr_FTLRealmServerConnection,
+        dataformat_DataFormat,
+        SQLFile
+    }
+    
+    
+    private BWResources resourceType;
+    
     private String type;
 
     private String name;
@@ -87,6 +131,8 @@ public class BwSharedResource  {
         if (type == null || type.isEmpty()) {
             type = FilenameUtils.getExtension(file.getAbsolutePath());
         }
+        
+        setResourceType(BWResources.valueOf(type.replaceAll(":", "_")));
     }
 
     protected void parseConfigurationData(Document xmlDocument, File file) {
@@ -235,7 +281,12 @@ public class BwSharedResource  {
     }
 
     public String getFullName() {
-        return getName();
+       String path = getResource().absolutePath();
+       if(path != null){
+           String projectPath = project.getFile().getAbsolutePath() + "/";
+           path = path.replaceAll(projectPath, "");
+       }
+       return path;
     }
 
     void setProject(BwProject aThis) {

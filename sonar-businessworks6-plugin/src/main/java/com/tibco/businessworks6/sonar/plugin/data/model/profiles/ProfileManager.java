@@ -1,9 +1,12 @@
 package com.tibco.businessworks6.sonar.plugin.data.model.profiles;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +16,6 @@ import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
 import org.jibx.runtime.JiBXException;
 import org.sonar.plugins.tibco.utils.common.URLClassPathList;
-
-
 
 public class ProfileManager {
 
@@ -30,7 +31,6 @@ public class ProfileManager {
     private static final String RESOURCES_MANDATORY = "qualityProfile.xsd";
 
     private ProfileManager() {
-        loadProfiles();
     }
 
     public static ProfileManager getInstance() {
@@ -50,57 +50,21 @@ public class ProfileManager {
         return null;
     }
 
-    private void loadProfiles() {
+    public Profile loadProfiles(String content) {
+        Profile out = null;
         LOG.debug("Loading profiles...");
-
-        List<URL> urlList = URLClassPathList.listResources(RESOURCES_ROOT, RESOURCES_MANDATORY, RESOURCES_ROOT.concat(".*xml"));
-
-        for (URL url : urlList) {
-            LOG.debug("Analyzing the file: " + url.toString());
-            if (url.getFile().endsWith(".xml")) {
-                LOG.debug("Detecting XML profile. Parsing...");
-                try {
-                    IBindingFactory bfact = BindingDirectory.getFactory(Profile.class);
-                    IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-                    Profile profile = (Profile) uctx.unmarshalDocument(url.openStream(), null);
-                    if (profile != null) {
-                        LOG.debug("Profile parsed sucessfully!");
-                        String key = profile.getDataName() + "-" + profile.getDataVersion();
-                        profileHash.put(key, profile);
-                        LOG.debug("Profile added sucessfully!");
-                    }
-                } catch (JiBXException ex) {
-                    LOG.error("Error detected: ", ex);
-                } catch (IOException ex) {
-                    LOG.error("Error detected: ", ex);
-                }
-                LOG.debug("Finished XML profile parsing...");
-            }
-        }
-
-    }
-
-    public Profile getProfileByName(String profileName) {
-        if (profileName != null) {
-            String key = profileName + "-" + "1.0";
-            return profileHash.get(key);
-        }
-        return null;
-    }
-
-    public Profile getProfileByPath(String path) {
-        FileInputStream fStream;
         try {
-            fStream = new FileInputStream(path);
             IBindingFactory bfact = BindingDirectory.getFactory(Profile.class);
             IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
-            return (Profile) uctx.unmarshalDocument(fStream, null);
-        } catch (FileNotFoundException ex) {
-            LOG.error("Error detected: ", ex);
+            InputStream stream = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8));
+            Profile profile = (Profile) uctx.unmarshalDocument(stream, null);
+            if (profile != null) {
+                out = profile;
+            }
         } catch (JiBXException ex) {
             LOG.error("Error detected: ", ex);
         }
-        return null;
+        LOG.debug("Finished XML profile parsing...");
+        return out;
     }
-
 }

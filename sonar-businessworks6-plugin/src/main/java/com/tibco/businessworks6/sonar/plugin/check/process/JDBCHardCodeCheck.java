@@ -13,6 +13,7 @@ import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 
 @Rule(key = JDBCHardCodeCheck.RULE_KEY, name = "JDBC HardCoded Check", priority = Priority.MAJOR, description = "This rule checks JDBC activities for hardcoded values for fields Timeout and MaxRows. Use Process property or Module property.")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
@@ -31,13 +32,14 @@ public class JDBCHardCodeCheck extends AbstractProcessCheck {
                     if (activity.getConfig("maxRows") != null) {
                         Violation violation = new DefaultViolation(getRule(),
                                 activity.getLine(),
-                                "The max rows setting in the JDBC activity is assigned a hardcoded value. It should be defined as Process property or Module property.");
+                                //"Setting in the JDBC activity is assigned a hardcoded value. It should be defined as Process property or Module property."
+                                "maxRows " + l10n.format(LocalizationMessages.SONAR_BW_JDBC_HARD_CODE_CHECK_LABEL));
                         processSource.addViolation(violation);
                     }
                     if (activity.getConfig("timeout") != null) {
                         Violation violation = new DefaultViolation(getRule(),
                                 activity.getLine(),
-                                "The timeout setting in the JDBC activity is assigned a harcoded value. It should be defined as Process property or Module property.");
+                                "timeout " + l10n.format(LocalizationMessages.SONAR_BW_JDBC_HARD_CODE_CHECK_LABEL));
                         processSource.addViolation(violation);
                     }
                 }

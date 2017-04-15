@@ -22,10 +22,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sonar.api.batch.SensorContext;
-//import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-//import org.sonar.api.checks.AnnotationCheckFactory;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.component.ResourcePerspectives;
@@ -56,10 +54,13 @@ import com.tibco.businessworks6.sonar.plugin.check.process.MultipleTransitionChe
 import com.tibco.businessworks6.sonar.plugin.check.process.NoDescriptionCheck;
 import com.tibco.businessworks6.sonar.plugin.check.process.NumberofActivitiesCheck;
 import com.tibco.businessworks6.sonar.plugin.check.process.NumberofServicesCheck;
+import com.tibco.businessworks6.sonar.plugin.check.process.ProcessNameCheck;
+import com.tibco.businessworks6.sonar.plugin.check.process.ProcessNamespaceCheck;
 import com.tibco.businessworks6.sonar.plugin.check.process.ProcessVersionCheck;
 import com.tibco.businessworks6.sonar.plugin.check.process.SubProcessInlineCheck;
 import com.tibco.businessworks6.sonar.plugin.check.process.TransitionLabelCheck;
 import com.tibco.businessworks6.sonar.plugin.check.project.BwModulePropertyNotUsed;
+import com.tibco.businessworks6.sonar.plugin.check.project.BwProjectProfileConvention;
 import com.tibco.businessworks6.sonar.plugin.check.project.BwSharedVariableNotUsed;
 import com.tibco.businessworks6.sonar.plugin.check.resources.BwSharedResourceNotUsed;
 import com.tibco.businessworks6.sonar.plugin.check.resources.BwSharedResourceParameterRequired;
@@ -67,10 +68,15 @@ import com.tibco.businessworks6.sonar.plugin.check.resources.BwSharedResourceUsi
 import com.tibco.businessworks6.sonar.plugin.source.Source;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProject;
+import com.tibco.businessworks6.sonar.plugin.data.model.helper.XmlHelper;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationService;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.impl.LocalizationServiceImpl;
 import com.tibco.businessworks6.sonar.plugin.source.ProjectSource;
 import java.io.File;
+import org.apache.log4j.Logger;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputPath;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 
 /**
@@ -85,17 +91,20 @@ public abstract class AbstractRuleSensor extends AbstractSensor {
     protected FileSystem fs;
     protected Checks checks;
     protected RulesProfile profile;
+    protected LocalizationService l10n;
+    protected static final Logger LOG = Logger.getLogger(AbstractSensor.class);
 
     @SuppressWarnings("rawtypes")
-    protected AbstractRuleSensor(RulesProfile profile,
+    protected AbstractRuleSensor(Settings settings,
+            RulesProfile profile,
             FileSystem fileSystem,
             ResourcePerspectives resourcePerspectives, String repositoryKey,
             String languageKey, CheckFactory checkFactory) {
-        super(fileSystem, resourcePerspectives, languageKey, checkFactory);
+        super(settings, fileSystem, resourcePerspectives, languageKey, checkFactory);
+        this.l10n = LocalizationServiceImpl.getInstance();
         this.fs = fileSystem;
         this.profile = profile;
-        /*this.annotationCheckFactory = AnnotationCheckFactory.create(profile,
-				repositoryKey, list);*/
+        updateLocale();
         checks = checkFactory.create(repositoryKey);
         List<Class> allChecks = new ArrayList<>();
         allChecks.add(NoDescriptionCheck.class);
@@ -122,11 +131,13 @@ public abstract class AbstractRuleSensor extends AbstractSensor {
         allChecks.add(ProcessVersionCheck.class);
         allChecks.add(BwModulePropertyNotUsed.class);
         allChecks.add(BwSharedVariableNotUsed.class);
-        allChecks.add(BwModulePropertyNotUsed.class);
+        allChecks.add(BwProjectProfileConvention.class);
         allChecks.add(BwSharedResourceNotUsed.class);
         allChecks.add(BwSharedResourceUsingModuleProperty.class);
         allChecks.add(BwSharedResourceParameterRequired.class);
         allChecks.add(BwCustomXPathFilter.class);
+        allChecks.add(ProcessNameCheck.class);
+        allChecks.add(ProcessNamespaceCheck.class);
 
         checks.addAnnotatedChecks(allChecks);
     }
@@ -146,6 +157,7 @@ public abstract class AbstractRuleSensor extends AbstractSensor {
         bwProject.init(fTmp);
         ProjectSource source = new ProjectSource(bwProject.getFile());
         InputDir resource = fs.inputDir(fTmp);
+        updateLocale();
 
         super.analyse(project, sensorContext);
 
@@ -162,6 +174,15 @@ public abstract class AbstractRuleSensor extends AbstractSensor {
 
     }
 
+    private void updateLocale() {
+        String locale = (String) settings.getString("sonar.violationLocale");
+        LOG.debug("Locale Detected: " + locale);
+        if (XmlHelper.isFilled(locale)) {
+            l10n.refreshLocale(locale);
+            LOG.debug("Refreshed locale to: " + locale);
+        }
+    }
+
     @SuppressWarnings("rawtypes")
     @VisibleForTesting
     protected void saveIssues(Source source, InputPath resource) {
@@ -172,8 +193,6 @@ public abstract class AbstractRuleSensor extends AbstractSensor {
             if (issue.getLine() != 0) {
                 lineNumber = issue.getLine();
             }
-
-            System.out.println("############# " + resource.absolutePath());
 
             if (resource instanceof InputFile) {
                 issuable.addIssue(issuable.newIssueBuilder()

@@ -9,6 +9,7 @@ import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwGroup;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
 import com.tibco.businessworks6.sonar.plugin.profile.ProcessSonarWayProfile;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 import java.util.Collection;
 import java.util.List;
 import org.sonar.check.BelongsToProfile;
@@ -36,7 +37,8 @@ public class CriticalSectionCheck
                             final Violation violation = new DefaultViolation(
                                     this.getRule(),
                                     activity.getLine(),
-                                    "Activity should not be used within Critical Section group.");
+                                    //"Activity should not be used within Critical Section group."
+                                    l10n.format(LocalizationMessages.SONAR_BW_ACTIVITIES_CRITICAL_SECTION_CHECK_LABEL));
                             processSource.addViolation(violation);
                         }
                     }

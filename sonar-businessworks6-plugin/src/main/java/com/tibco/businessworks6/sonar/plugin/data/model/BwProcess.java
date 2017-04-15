@@ -22,6 +22,9 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
 
     protected boolean isSubProcess;
     protected List<EventSource> eventSources = new ArrayList<>();
+    private Collection<BwCatchHandler> catchList = new ArrayList<>();
+    private Collection<BwEventHandler> eventHandlerList = new ArrayList<>();
+
     protected List<BwGroup> groups = new ArrayList<>();
     protected Map<String, BwService> services = new HashMap<>();
     protected Map<String, BwService> processReferenceServices = new HashMap<>();
@@ -64,20 +67,6 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
         variables = new ArrayList<>();
 
         init();
-    }
-
-    /**
-     * @return the processName
-     */
-    public String getProcessName() {
-        return processName;
-    }
-
-    /**
-     * @param processName the processName to set
-     */
-    public void setProcessName(String processName) {
-        this.processName = processName;
     }
 
     /**
@@ -140,8 +129,9 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
         LOG.debug("Initializing the BwProcess");
         document = XmlHelper.getDocument(file);
         Element process = XmlHelper.evalueXPathSingleElement(getDocument().getDocumentElement(), "//process/scope");
+        namedNodeMap = getDocument().getDocumentElement().getAttributes();
         if (process != null) {
-              
+
             parseFlow(process);
         }
         LOG.debug("Initialized the BwProcess");
@@ -159,7 +149,7 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
     }
 
     public void parseFlow(Element documentElement) {
-        
+
         BwpParser.processProcessData(this, getDocument().getDocumentElement());
         BwpParser.calculateVariables(this, documentElement);
         BwpParser.calculateBasicActivity(this, documentElement);
@@ -167,8 +157,10 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
         LOG.debug("Parsing transitions..");
         BwpParser.parseTransitions(this, documentElement);
         LOG.debug("Parsed transitions..");
+        BwpParser.parseServices(this, documentElement);
+        BwpParser.parseHandlers(this, documentElement);
         //BwpParser.parseProcessStarterActivity(this, documentElement);
-        
+
     }
 
     /**
@@ -270,26 +262,9 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
         return out;
     }
 
-    public String getFullName() {
-        String out = "";
-        String tmp = getName();
-        if (tmp != null) {
-            int idx = tmp.lastIndexOf("/");
-            if (idx > 0) {
-                String str = tmp.substring(10, idx + 1);
-                String finalName = str.replaceAll("/", ".");
-                out = finalName + getProcessName();
-            }
-
-        }
-        return out;
-    }
-
     public Map<String, String> getSynonymsGroupMapping() {
         return synonymsGroupMapping;
     }
-
-
 
     public boolean isSubProcess() {
         return isSubProcess;
@@ -359,24 +334,23 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
         return this;
     }
 
-
     public String findActualReferenceServiceName(String referenceService) {
         String partnerLinks = "/process/partnerLinks/partnerLink";
 
-            NodeList children = (NodeList) XmlHelper.evaluateXPath(processXmlDocument, partnerLinks);
-            if (children != null) {
-                for (int i = 0; i < children.getLength(); i++) {
-                    if (children.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(referenceService)) {
-                        NodeList nodeList = children.item(i).getChildNodes();
-                        for (int j = 0; j < nodeList.getLength(); j++) {
-                            if (nodeList.item(j).getNodeName().equals("tibex:ReferenceWire")) {
-                                referenceService = nodeList.item(j).getAttributes().getNamedItem("serviceName").getNodeValue();
-                                break;
-                            }
+        NodeList children = (NodeList) XmlHelper.evaluateXPath(processXmlDocument, partnerLinks);
+        if (children != null) {
+            for (int i = 0; i < children.getLength(); i++) {
+                if (children.item(i).getAttributes().getNamedItem("name").getNodeValue().equals(referenceService)) {
+                    NodeList nodeList = children.item(i).getChildNodes();
+                    for (int j = 0; j < nodeList.getLength(); j++) {
+                        if (nodeList.item(j).getNodeName().equals("tibex:ReferenceWire")) {
+                            referenceService = nodeList.item(j).getAttributes().getNamedItem("serviceName").getNodeValue();
+                            break;
                         }
                     }
                 }
             }
+        }
 
         return referenceService;
     }
@@ -621,10 +595,45 @@ public class BwProcess extends ProcessNode implements Loggable, BwFlow {
         return namedNodeMap;
     }
 
-    
-
     public void setNameNodeMap(NamedNodeMap attributes) {
-       this.namedNodeMap = attributes;
+        this.namedNodeMap = attributes;
+    }
+
+    /**
+     * @return the catchList
+     */
+    public Collection<BwCatchHandler> getCatchList() {
+        return catchList;
+    }
+
+    /**
+     * @param catchList the catchList to set
+     */
+    public void setCatchList(Collection<BwCatchHandler> catchList) {
+        this.catchList = catchList;
+    }
+
+    /**
+     * @return the eventHandlerList
+     */
+    public Collection<BwEventHandler> getEventHandlerList() {
+        return eventHandlerList;
+    }
+
+    /**
+     * @param eventHandlerList the eventHandlerList to set
+     */
+    public void setEventHandlerList(Collection<BwEventHandler> eventHandlerList) {
+        this.eventHandlerList = eventHandlerList;
+    }
+
+    public String getFullName() {
+        String path = getResource().absolutePath();
+        if (path != null) {
+            String projectPath = project.getFile().getAbsolutePath() + "/";
+            path = path.replaceAll(projectPath, "");
+        }
+        return path;
     }
 
 }

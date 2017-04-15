@@ -12,6 +12,7 @@ import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwConfigurationParameter;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 
 @Rule(key = JMSHardCodeCheck.RULE_KEY, name = "JMS HardCoded Check", priority = Priority.MAJOR, description = "This rule checks JMS activities for hardcoded values for fields Timeout, Destinaton, Reply to Destination, Message Selector, Polling Interval. Use Process property or Module property.")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
@@ -31,7 +32,8 @@ public class JMSHardCodeCheck extends AbstractProcessCheck {
                         if ("destinationName".equals(param.getName()) && param.getValue() != null) {
                             Violation violation = new DefaultViolation(getRule(),
                                     activity.getLine(),
-                                    "The Destination Name setting in the JMS activity is assigned a hardcoded value. It should be defined as Process property or Module property.");
+                                    //"setting in the JMS activity is assigned a hardcoded value. It should be defined as Process property or Module property."
+                                    "Destination Name "+ l10n.format(LocalizationMessages.SONAR_BW_JMS_HARDCODE_CHECK_LABEL));
                             processSource.addViolation(violation);
                         }
                         if (("replyToDestination".equals(param.getName())) && param.getValue() != null) {

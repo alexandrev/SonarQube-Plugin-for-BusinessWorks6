@@ -13,12 +13,13 @@ import com.tibco.businessworks6.sonar.plugin.source.ProcessSource;
 import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwGroup;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 
 @Rule(key = CheckpointInTransation.RULE_KEY, name = "Checkpoint inside Transaction Group Check", priority = Priority.CRITICAL, description = "This rule checks the placement of a Checkpoint activity within a process. Do not place checkpoint within or in parallel to a Transaction Group or a Critical Section Group. Checkpoint activities should be placed at points that are guaranteed to be reached before or after the transaction group is reached.")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.CRITICAL)
 public class CheckpointInTransation extends AbstractProcessCheck {
     
-    public static final String RULE_KEY = "CheckpointProcessTransaction";
+    public static final String RULE_KEY = "CheckpointInTransation";
 
     
     @Override
@@ -31,8 +32,9 @@ public class CheckpointInTransation extends AbstractProcessCheck {
                     for (BwActivity activity : process.getActivityList()) {
                         if (activity.getType() != null && activity.getType().equals("bw.internal.checkpoint")) {
                             DefaultViolation violation = new DefaultViolation(getRule(),
-                                    1,
-                                    "Checkpoint should not be placed within or in parallel flow to a transaction or critical section.");
+                                    activity.getLine(),
+                                    //"Checkpoint should not be placed within or in parallel flow to a transaction or critical section."
+                                    l10n.format(LocalizationMessages.SONAR_BW_CHECKPOINT_AFTER_TRANSACTION_CHECK_LABEL));
                             processSource.addViolation(violation);
                             
                         }

@@ -12,6 +12,7 @@ import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 import java.util.Collection;
 import org.apache.log4j.Logger;
 
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
 public class CheckpointAfterRESTCheck extends AbstractProcessCheck {
 
-    public static final String RULE_KEY = "CheckpointProcessREST";
+    public static final String RULE_KEY = "CheckpointAfterRESTCheck";
 
     @Override
     protected void validate(ProcessSource processSource) {
@@ -41,7 +42,8 @@ public class CheckpointAfterRESTCheck extends AbstractProcessCheck {
             if (prev.getType() != null &&  prev.getType().contains("bw.restjson.Rest")) {
                 Violation violation = new DefaultViolation(getRule(),
                         activity.getLine(),
-                        "The process has a Checkpoint activity placed after a REST webservice call or in a parallel flow to a REST webservice call.");
+                        //"The process has a Checkpoint activity placed after a REST webservice call or in a parallel flow to a REST webservice call."
+                        l10n.format(LocalizationMessages.SONAR_BW_CHECKPOINT_AFTER_REST_CHECK_LABEL));
                 processSource.addViolation(violation);
                 return;
             }

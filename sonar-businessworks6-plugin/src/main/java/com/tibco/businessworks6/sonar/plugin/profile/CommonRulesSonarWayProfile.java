@@ -24,12 +24,9 @@ import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.ValidationMessages;
 
-import com.tibco.businessworks6.sonar.plugin.BusinessWorksPlugin;
-import com.tibco.businessworks6.sonar.plugin.language.AbstractBusinessWorksLanguage;
-/*import com.tibco.businessworks6.sonar.plugin.rulerepository.SharedHttpRuleRepository;
-import com.tibco.businessworks6.sonar.plugin.bw.rulerepository.SharedJdbcRuleRepository;
-import com.tibco.businessworks6.sonar.plugin.rulerepository.SharedJmsRuleRepository;
- */
+import com.tibco.businessworks6.sonar.plugin.BwConstants;
+
+
 import java.util.ArrayList;
 
 public class CommonRulesSonarWayProfile extends ProfileDefinition {
@@ -46,11 +43,7 @@ public class CommonRulesSonarWayProfile extends ProfileDefinition {
 	@Override
 	public RulesProfile createProfile(ValidationMessages messages) {
 		ArrayList<Class> classes = new ArrayList<Class>();
-		//classes.addAll(ProcessRuleRepository.getChecks());
-		/*classes.addAll(SharedHttpRuleRepository.getChecks());	
-		classes.addAll(SharedJdbcRuleRepository.getChecks());	
-		classes.addAll(SharedJmsRuleRepository.getChecks());*/	
-		RulesProfile ruleProfile = annotationProfileParser.parse(BusinessWorksPlugin.TIBCO_BUSINESSWORK_RULEREPOSITORY,	SONAR_WAY_PROFILE_NAME, AbstractBusinessWorksLanguage.BW_KEY,
+		RulesProfile ruleProfile = annotationProfileParser.parse(BwConstants.REPOSITORY_KEY,	SONAR_WAY_PROFILE_NAME, BwConstants.LANGUAGE_KEY,
 				classes, messages);
 		return ruleProfile;
 	}

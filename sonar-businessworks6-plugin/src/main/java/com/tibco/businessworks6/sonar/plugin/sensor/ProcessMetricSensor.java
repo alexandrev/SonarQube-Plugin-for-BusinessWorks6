@@ -19,26 +19,21 @@
  */
 package com.tibco.businessworks6.sonar.plugin.sensor;
 
+import com.tibco.businessworks6.sonar.plugin.BwConstants;
 import java.io.File;
 
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.component.ResourcePerspectives;
 
-import com.tibco.businessworks6.sonar.plugin.language.ProcessLanguage;
+import org.sonar.api.config.Settings;
 
 public class ProcessMetricSensor extends AbstractMetricSensor {
 
-	protected ProcessMetricSensor(FileSystem fileSystem, ResourcePerspectives resourcePerspectives, String languageKey,
+	protected ProcessMetricSensor(Settings settings,FileSystem fileSystem, ResourcePerspectives resourcePerspectives, String languageKey,
 			CheckFactory checkFactory) {
-		super(fileSystem, resourcePerspectives, languageKey, checkFactory);
+		super(settings,fileSystem, resourcePerspectives, languageKey, checkFactory);
 		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	protected void analyseDeadLock(Iterable<File> filesIterable) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
@@ -53,10 +48,10 @@ public class ProcessMetricSensor extends AbstractMetricSensor {
 		
 	}
 
-	public ProcessMetricSensor(
+	public ProcessMetricSensor(Settings settings,
 			FileSystem fileSystem,
 			ResourcePerspectives resourcePerspectives, CheckFactory checkFactory) {
-		super(fileSystem, resourcePerspectives, ProcessLanguage.KEY, checkFactory);
+		super(settings,fileSystem, resourcePerspectives, BwConstants.LANGUAGE_KEY, checkFactory);
 	}
 
 }

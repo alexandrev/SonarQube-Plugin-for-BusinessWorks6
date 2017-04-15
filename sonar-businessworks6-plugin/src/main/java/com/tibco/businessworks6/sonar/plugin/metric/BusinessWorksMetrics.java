@@ -1,9 +1,7 @@
 package com.tibco.businessworks6.sonar.plugin.metric;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Nullable;
 
@@ -16,7 +14,7 @@ import org.sonar.api.utils.SonarException;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.tibco.businessworks6.sonar.plugin.sensor.ProcessRuleSensor;
+import com.tibco.businessworks6.sonar.plugin.data.model.BwSharedResource;
 
 public class BusinessWorksMetrics implements Metrics{
 
@@ -26,13 +24,11 @@ public class BusinessWorksMetrics implements Metrics{
 			.setDescription("Equals true if the resource is a TIBCO BusinessWorks project or module")
 			.setQualitative(false)
 			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	
 	/*
 	 * 
 	 * Module Properties metrics
 	 * 
 	 */
-	
 	public static final String GLOBALVARIABLES_KEY = "globalvariables";
 	public static final Metric GLOBALVARIABLES = new Metric.Builder(GLOBALVARIABLES_KEY,
 			"Module Properties", Metric.ValueType.INT)
@@ -72,322 +68,169 @@ public class BusinessWorksMetrics implements Metrics{
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	/*
-	 * 
-	 * BW resources metrics
-	 * 
-	 */
-	
-	public static Metric[] resourceMetrics(){
-		Iterator<Map.Entry<String, Integer>> it = ProcessRuleSensor.foundResources.entrySet().iterator();
-		Metric[] BWRESOURCES_METRICS_LIST = new Metric[ProcessRuleSensor.foundResources.size()];
-		int i = 0 ;
-		while (it.hasNext()) {
-	        Map.Entry<String, Integer> pair = it.next();
-	        String BWRESOURCE_KEY = pair.getKey().replaceAll("\\s","");
-	        Metric BWRESOURCE = new Metric.Builder(BWRESOURCE_KEY,
-	    			pair.getKey(), Metric.ValueType.INT)
-	    			.setDescription("Total of shared resources")
-	    			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
-	    			.setFormula(new SumChildValuesFormula(false))
-	    			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	        BWRESOURCES_METRICS_LIST[i] = BWRESOURCE;
-	        i++;
-	    }
-		return BWRESOURCES_METRICS_LIST;
-	}
-	
-	public static final Metric BWRESOURCES_HTTP_CONNECTION_FLAG = new Metric.Builder("ishttpclient",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();	
-	public static final String BWRESOURCES_HTTP_CONNECTION_KEY = "HTTPClient";
-	public static final Metric BWRESOURCES_HTTP_CONNECTION = new Metric.Builder(BWRESOURCES_HTTP_CONNECTION_KEY,
-			"HTTP Clients", Metric.ValueType.INT)
+
+	public static final Metric BWRESOURCES_HTTP_CONNECTION = new Metric.Builder(BwSharedResource.BWResources.http_HttpClientConfiguration.name(),
+			"HTTP Client", Metric.ValueType.INT)
+			.setDescription("Total of shared HTTP connection resources")
+			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
+			.setFormula(new SumChildValuesFormula(false))
+			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
+
+	public static final Metric BWRESOURCES_HTTP_CONNECTOR = new Metric.Builder(BwSharedResource.BWResources.httpconnector_HttpConnectorConfiguration.name(),
+			"HTTP Connector", Metric.ValueType.INT)
 			.setDescription("Total of shared HTTP connection resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
 	
-	public static final Metric BWRESOURCES_HTTP_CONNECTOR_FLAG = new Metric.Builder("ishttpconnector",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final String BWRESOURCES_HTTP_CONNECTOR_KEY = "HTTPConnector";
-	public static final Metric BWRESOURCES_HTTP_CONNECTOR = new Metric.Builder(BWRESOURCES_HTTP_CONNECTOR_KEY,
-			"HTTP Connectors", Metric.ValueType.INT)
-			.setDescription("Total of shared HTTP connection resources")
-			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
-			.setFormula(new SumChildValuesFormula(false))
-			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	
-	public static final Metric BWRESOURCES_JDBC_CONNECTION_FLAG = new Metric.Builder("isjdbcconnection",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final String BWRESOURCES_JDBC_CONNECTION_KEY = "JDBCConnection";
-	public static final Metric BWRESOURCES_JDBC_CONNECTION = new Metric.Builder(BWRESOURCES_JDBC_CONNECTION_KEY,
+	public static final Metric BWRESOURCES_JDBC_CONNECTION = new Metric.Builder(BwSharedResource.BWResources.jdbc_JdbcDataSource.name(),
 			"JDBC Connections", Metric.ValueType.INT)
 			.setDescription("Total of shared JDBC connection resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric BWRESOURCES_JMS_CONNECTION_FLAG = new Metric.Builder("isjmsconnection",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final String BWRESOURCES_JMS_CONNECTION_KEY = "JMSConnection";
-	public static final Metric BWRESOURCES_JMS_CONNECTION = new Metric.Builder(BWRESOURCES_JMS_CONNECTION_KEY,
+
+	public static final Metric BWRESOURCES_JMS_CONNECTION = new Metric.Builder(BwSharedResource.BWResources.jms_JMSConnectionFactory.name(),
 			"JMS Connections", Metric.ValueType.INT)
 			.setDescription("Total of shared JMS connection resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric XML_AUTHENTICATION_FLAG = new Metric.Builder("isxmlauthentication",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final String XML_AUTHENTICATION_KEY = "XMLAuthentication";
-	public static final Metric XML_AUTHENTICATION = new Metric.Builder(XML_AUTHENTICATION_KEY,
+
+	public static final Metric XML_AUTHENTICATION = new Metric.Builder(BwSharedResource.BWResources.authxml_XMLConfiguration.name(),
 			"XML Authentication", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric SSL_Server_Configuration_Flag = new Metric.Builder("issslserverconfiguration",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric SSL_Server_Configuration = new Metric.Builder("SSLServerConfiguration",
+
+	public static final Metric SSL_Server_Configuration = new Metric.Builder(BwSharedResource.BWResources.sslserver_SSLServerConfiguration.name(),
 			"SSL Server Configuration", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric SSL_Client_Configuration_Flag = new Metric.Builder("issslclientconfiguration",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric SSL_Client_Configuration = new Metric.Builder("SSLClientConfiguration",
+
+	public static final Metric SSL_Client_Configuration = new Metric.Builder(BwSharedResource.BWResources.sslclient_SSLClientConfiguration.name(),
 			"SSL Client Configuration", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	
-	public static final Metric SMTP_Resource_Flag = new Metric.Builder("issmtpresource",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric SMTP_Resource = new Metric.Builder("SMTPResource",
+
+	public static final Metric SMTP_Resource = new Metric.Builder(BwSharedResource.BWResources.smtp_SmtpConfiguration.name(),
 			"SMTP Resource", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Data_Format_Flag = new Metric.Builder("isdataformat",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Data_Format = new Metric.Builder("DataFormat",
+
+	public static final Metric Data_Format = new Metric.Builder(BwSharedResource.BWResources.dataformat_DataFormat.name(),
 			"Data Format", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric SQL_File_Flag = new Metric.Builder("issqlfile",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric SQL_File = new Metric.Builder("SQLFile",
+
+	public static final Metric SQL_File = new Metric.Builder(BwSharedResource.BWResources.SQLFile.name(),
 			"SQL File", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric FTL_Realm_Server_Connection_Flag = new Metric.Builder("isftlrealmserver",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric FTL_Realm_Server_Connection = new Metric.Builder("FTLRealmServerConnection",
+
+	public static final Metric FTL_Realm_Server_Connection = new Metric.Builder(BwSharedResource.BWResources.ftlsr_FTLRealmServerConnection.name(),
 			"FTL Realm Server Connection", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric FTP_Connection_Flag = new Metric.Builder("isftpconnection",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric FTP_Connection = new Metric.Builder("FTPConnection",
+
+	public static final Metric FTP_Connection = new Metric.Builder(BwSharedResource.BWResources.ftpconnection_ftpconnection.name(),
 			"FTP Connection", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Identity_Provider_Flag = new Metric.Builder("isidentityprovider",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Identity_Provider = new Metric.Builder("IdentityProvider",
+
+	public static final Metric Identity_Provider = new Metric.Builder(BwSharedResource.BWResources.mip_MIPConfiguration.name(),
 			"Identity Provider", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Java_Global_Instance_Flag = new Metric.Builder("isjavaglobalinstance",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Java_Global_Instance = new Metric.Builder("JavaGlobalInstance",
+
+	public static final Metric Java_Global_Instance = new Metric.Builder(BwSharedResource.BWResources.javasharedresource_JavaGlobalInstanceResource.name(),
 			"Java Global Instance", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric JNDI_Configuration_Flag = new Metric.Builder("isjndiconfiguration",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric JNDI_Configuration = new Metric.Builder("JNDIConfiguration",
+
+	public static final Metric JNDI_Configuration = new Metric.Builder(BwSharedResource.BWResources.jms_JNDIConnection.name(),
 			"JNDI Configuration", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Keystore_Provider_Flag = new Metric.Builder("iskeystoreprovider",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Keystore_Provider = new Metric.Builder("KeystoreProvider",
+
+	public static final Metric Keystore_Provider = new Metric.Builder(BwSharedResource.BWResources.keystore_KeystoreConfiguration.name(),
 			"Keystore Provider", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric LDAP_Authentication_Flag = new Metric.Builder("isldapauthentication",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric LDAP_Authentication = new Metric.Builder("LDAPAuthentication",
+
+	public static final Metric LDAP_Authentication = new Metric.Builder(BwSharedResource.BWResources.ldapauth_LDAPConfiguration.name(),
 			"LDAP Authentication", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Proxy_Configuration_Flag = new Metric.Builder("isproxyconfiguration",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Proxy_Configuration = new Metric.Builder("ProxyConfiguration",
+
+	public static final Metric Proxy_Configuration = new Metric.Builder(BwSharedResource.BWResources.httpproxy_ProxyConfiguration.name(),
 			"Proxy Configuration", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Trust_Provider_Flag = new Metric.Builder("istrustprovider",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Trust_Provider = new Metric.Builder("TrustProvider",
+
+	public static final Metric Trust_Provider = new Metric.Builder(BwSharedResource.BWResources.TrustProvider.name(),
 			"Trust Provider", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Threal_Pool_Flag = new Metric.Builder("isthreadpool",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Threal_Pool = new Metric.Builder("ThrealPool",
+
+	public static final Metric Threal_Pool = new Metric.Builder(BwSharedResource.BWResources.tp_ThreadPoolConfiguration.name(),
 			"Threal Pool", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric Subject_Provider_Flag = new Metric.Builder("issubjectprovider",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric Subject_Provider = new Metric.Builder("SubjectProvider",
+
+	public static final Metric Subject_Provider = new Metric.Builder(BwSharedResource.BWResources.subject_SubjectConfiguration.name(),
 			"Subject Provider", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
 	
-	public static final Metric TCP_Connection_Flag = new Metric.Builder("istcpconnection",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric TCP_Connection = new Metric.Builder("TCPConnection",
+	public static final Metric TCP_Connection = new Metric.Builder(BwSharedResource.BWResources.tcpconnection_tcpconnection.name(),
 			"TCP Connection", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
-	
-	public static final Metric WSS_Authentication_FLAG = new Metric.Builder("isWSSAuthentication",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final Metric WSS_Authentication = new Metric.Builder("WSSAuthentication",
+
+	public static final Metric WSS_Authentication = new Metric.Builder(BwSharedResource.BWResources.wss_WSSConfiguration.name(),
 			"WSS Authentication", Metric.ValueType.INT)
 			.setDescription("Total resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)
 			.setFormula(new SumChildValuesFormula(false))
 			.setDomain(CoreMetrics.DOMAIN_SIZE).create();
 	
-	public static final Metric RVTRANSPORTFLAG = new Metric.Builder("isrvtransport",
-			"TIBCO BusinessWorks Nature", Metric.ValueType.BOOL)
-			.setDescription("Equals true if the resource exists in the project")
-			.setQualitative(false)
-			.setDomain(CoreMetrics.DOMAIN_GENERAL).create();
-	public static final String BWRESOURCES_RV_TRANSPORT_KEY = "RendezvousTransport";
-	public static final Metric BWRESOURCES_RV_TRANSPORT = new Metric.Builder(BWRESOURCES_RV_TRANSPORT_KEY,
+	public static final Metric BWRESOURCES_RV_TRANSPORT = new Metric.Builder(BwSharedResource.BWResources.rvsharedresource_RVResource.name(),
 			"RV Transport", Metric.ValueType.INT)
 			.setDescription("Total of RV Transport resources")
 			.setDirection(Metric.DIRECTION_WORST).setQualitative(false)

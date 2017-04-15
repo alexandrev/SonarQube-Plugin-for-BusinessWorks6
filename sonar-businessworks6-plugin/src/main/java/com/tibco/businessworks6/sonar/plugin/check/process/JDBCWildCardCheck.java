@@ -14,6 +14,7 @@ import com.tibco.businessworks6.sonar.plugin.violation.DefaultViolation;
 import com.tibco.businessworks6.sonar.plugin.violation.Violation;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwActivity;
 import com.tibco.businessworks6.sonar.plugin.data.model.BwProcess;
+import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 
 @Rule(key = JDBCWildCardCheck.RULE_KEY, name = "JDBC WildCard Check", priority = Priority.MAJOR, description = "This rule checks whether JDBC activities are using wildcards in the query. As a good coding practice, never use wildcards in JDBC queries.")
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
@@ -40,7 +41,9 @@ public class JDBCWildCardCheck extends AbstractProcessCheck {
                     if (raise) {
                         Violation violation = new DefaultViolation(getRule(),
                                 activity.getLine(),
-                                "WildCards should not be used in a JDBC Query. Use correct colomn names in JDBC query for activity " + activity.getName() + " from process " + processSource.getProcessModel().getName());
+                                //"WildCards should not be used in a JDBC Query. Use correct colomn names in JDBC query"
+                                l10n.format(LocalizationMessages.SONAR_BW_JDBC_WILDCARD_CHECK_LABEL)
+                        );
                         processSource.addViolation(violation);
                     }
                 }

@@ -1,6 +1,18 @@
-package com.tibco.businessworks6.sonar.plugin.services.l10n;
+ package com.tibco.businessworks6.sonar.plugin.services.l10n;
 
 public interface LocalizationMessages {
+    String SONAR_BW_PROJECT_NAME_TEXT_ISSUE = "sonar.bw6.project_name.check.label";
+    String SONAR_BW_JMS_HARDCODE_CHECK_LABEL = "sonar.bw6.jms_harcode.check.label";
+    String SONAR_BW_JMS_AUTOACK_CHECK_LABEL ="sonar.bw6.jms_autoack.check.label"; 
+    String SONAR_BW_JDBC_WILDCARD_CHECK_LABEL = "sonar.bw6.jdbc_wildcard.check.label";
+    String SONAR_BW_JDBC_HARD_CODE_CHECK_LABEL = "sonar.bw6.jdbc_hard_code.check.label";
+    String SONAR_BW_FOR_EACH_MAPPING_CHECK_LABEL = "sonar.bw6.for_each_mapping.check.label";
+    String SONAR_BW_FOR_EACH_GROUP_CHECK_LABEL = "sonar.bw6.for_each_group.check.label";
+    String SONAR_BW_ACTIVITIES_CRITICAL_SECTION_CHECK_LABEL = "sonar.bw6.activities_critical.check.label";
+    String SONAR_BW_CHECKPOINT_AFTER_TRANSACTION_CHECK_LABEL = "sonar.bw6.checkpoint_after_transaction.check.label";
+    String SONAR_BW_CHECKPOINT_AFTER_REST_CHECK_LABEL = "sonar.bw6.checkpoint_after_rest.check.label";
+    String SONAR_BW_CHECKPOINT_AFTER_JDBC_CHECK_LABEL= "sonar.bw6.checkpoint_after_jdbc.check.label";
+    String SONAR_BW_CHECKPOINT_AFTER_HTTP_CHECK_LABEL = "sonar.bw6.checkpoint_after_http.check.label";
     String SONAR_BW_NUMBER_SERVICES_CHECK_LABEL = "sonar.bw6.number_services.check.label";
     String SONAR_BW_CHOICE_NO_OTHERWISE_CHECK_LABEL = "sonar.bw6.choice_no_otherwise.check.label";
     String SONAR_BW_LOG_ONLY_SUBPROCESS_CHECK_LABEL = "sonar.bw6.log_subprocess.check.label";

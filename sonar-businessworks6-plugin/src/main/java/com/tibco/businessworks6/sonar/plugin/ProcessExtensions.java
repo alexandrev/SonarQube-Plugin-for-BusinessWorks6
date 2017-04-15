@@ -21,10 +21,12 @@ package com.tibco.businessworks6.sonar.plugin;
 
 import com.google.common.collect.ImmutableList;
 
-import com.tibco.businessworks6.sonar.plugin.language.ProcessLanguage;
+import com.tibco.businessworks6.sonar.plugin.language.BusinessWorks6Language;
+import com.tibco.businessworks6.sonar.plugin.metric.BusinessWorksMetrics;
 import com.tibco.businessworks6.sonar.plugin.rulerepository.ProcessRuleDefinition;
 import com.tibco.businessworks6.sonar.plugin.profile.ProcessSonarWayProfile;
 import com.tibco.businessworks6.sonar.plugin.sensor.ProcessRuleSensor;
+import com.tibco.businessworks6.sonar.plugin.widget.BusinessWorksMetricsWidget;
 
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.PropertyDefinition;
@@ -34,29 +36,32 @@ import java.util.List;
 
 public final class ProcessExtensions {
 
-	public static final String SUB_CATEGORY_NAME = "Processes";
+    public static final String SUB_CATEGORY_NAME = "Processes";
 
-	private ProcessExtensions() {
-	}
+    private ProcessExtensions() {
+    }
 
-	@SuppressWarnings("rawtypes")
-	public static List getExtensions() {
-		ImmutableList.Builder<Object> builder = ImmutableList.builder();
-		builder.add(ProcessLanguage.class);
-		builder.add(ProcessSonarWayProfile.class);	
-		builder.add(ProcessRuleDefinition.class);
-		builder.add(ProcessRuleSensor.class);
-		//builder.add(ProcessMetricSensor.class);
-		builder.add(PropertyDefinition
-				.builder(ProcessLanguage.FILE_SUFFIXES_KEY)
-				.defaultValue(StringUtils.join(ProcessLanguage.DEFAULT_FILE_SUFFIXES,","))
-				.name("Process file suffixes")
-				.description(
-						"Comma-separated list of suffixes for files to analyze.")
-				.category(BusinessWorksPlugin.TIBCO_BUSINESSWORK_CATEGORY)
-				.subCategory(SUB_CATEGORY_NAME)
-				.onQualifiers(Qualifiers.PROJECT).build());
-		return builder.build();
-	}
+    @SuppressWarnings("rawtypes")
+    public static List getExtensions() {
+        ImmutableList.Builder<Object> builder = ImmutableList.builder();
+        builder.add(BusinessWorks6Language.class);
+        builder.add(ProcessSonarWayProfile.class);
+        builder.add(ProcessRuleDefinition.class);
+        builder.add(ProcessRuleSensor.class);
+        builder.add(BusinessWorksMetrics.class);
+        builder.add(BusinessWorksMetricsWidget.class);
+
+        
+        builder.add(PropertyDefinition
+                .builder(StringUtils.join(BusinessWorks6Language.INSTANCE.getFileSuffixes(),","))
+                .defaultValue(StringUtils.join(BusinessWorks6Language.INSTANCE.getFileSuffixes(), ","))
+                .name("Process file suffixes")
+                .description(
+                        "Comma-separated list of suffixes for files to analyze.")
+                .category(BwConstants.LANGUAGE_NAME)
+                .subCategory(SUB_CATEGORY_NAME)
+                .onQualifiers(Qualifiers.PROJECT).build());
+        return builder.build();
+    }
 
 }

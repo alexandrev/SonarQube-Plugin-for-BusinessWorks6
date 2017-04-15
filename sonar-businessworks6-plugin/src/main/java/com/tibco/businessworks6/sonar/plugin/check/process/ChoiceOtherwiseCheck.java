@@ -19,7 +19,7 @@ import com.tibco.businessworks6.sonar.plugin.services.l10n.LocalizationMessages;
 @BelongsToProfile(title = ProcessSonarWayProfile.defaultProfileName, priority = Priority.MAJOR)
 public class ChoiceOtherwiseCheck extends AbstractProcessCheck {
 
-    public static final String RULE_KEY = "ChoiceWithNoOtherwise";
+    public static final String RULE_KEY = "ChoiceOtherwiseCheck";
 
     @Override
     protected void validate(ProcessSource processSource) {

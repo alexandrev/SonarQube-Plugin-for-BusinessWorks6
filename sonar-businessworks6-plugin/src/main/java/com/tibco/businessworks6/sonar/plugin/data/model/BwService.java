@@ -8,6 +8,9 @@ public class BwService {
 	protected HashMap<String, Operation> operations = new HashMap<String, Operation>();
 	protected String implementationProcess;
 	protected String inline;
+        private boolean isService;
+        
+        
 	
 	public String getInline() {
 		return inline;
@@ -50,5 +53,19 @@ public class BwService {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+    /**
+     * @return the isService
+     */
+    public boolean isIsService() {
+        return isService;
+    }
+
+    /**
+     * @param isService the isService to set
+     */
+    public void setIsService(boolean isService) {
+        this.isService = isService;
+    }
 	
 }

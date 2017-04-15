@@ -127,7 +127,8 @@
             <dependency>
                 <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
                 <artifactId>sslr-squid-bridge</artifactId>
-                <version>${sslrSquidVersion}</version>
+                <version>2.6</version>
+                <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>xalan</groupId>
@@ -220,6 +221,10 @@
             <artifactId>sonar-deprecated</artifactId>
             <version>${sonar.version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.sonar.sslr-squid-bridge</groupId>
+            <artifactId>sslr-squid-bridge</artifactId>
         </dependency>
     </dependencies>
 

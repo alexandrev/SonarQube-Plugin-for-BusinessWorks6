@@ -19,12 +19,13 @@
  */
 package com.tibco.businessworks6.sonar.plugin.profile;
 
+import com.tibco.businessworks6.sonar.plugin.BwConstants;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.ValidationMessages;
 
-import com.tibco.businessworks6.sonar.plugin.language.ProcessLanguage;
+
 import com.tibco.businessworks6.sonar.plugin.rulerepository.ProcessRuleDefinition;
 
 public class ProcessSonarWayProfile extends ProfileDefinition {
@@ -37,7 +38,7 @@ public class ProcessSonarWayProfile extends ProfileDefinition {
 
 	  @Override
 	  public RulesProfile createProfile(ValidationMessages messages) {
-	    return annotationProfileParser.parse(ProcessRuleDefinition.REPOSITORY_KEY, defaultProfileName, ProcessLanguage.KEY, ProcessRuleDefinition.checkRules, messages);
+	    return annotationProfileParser.parse(BwConstants.REPOSITORY_KEY, defaultProfileName, BwConstants.LANGUAGE_KEY, ProcessRuleDefinition.checkRules, messages);
 	  }
 
 }
