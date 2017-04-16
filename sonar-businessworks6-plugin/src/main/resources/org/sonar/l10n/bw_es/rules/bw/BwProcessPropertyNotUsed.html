@@ -1,8 +1,4 @@
-<p>Atributos de los Shared Resource deberían ser definidos utilizando Global Variables.</p>
-
-<p>Diferentes valores para cada entorno (Dev, Pre, UAT, Prod, etc) puede ser especificados.</p>
-
-<p>Valores Hardcoded es algo muy desaconsejado.</p>
-
-<p> Por defecto, <code>Domain</code>, <code>Deployment</code> son excluídos y otras incluidos en el patrón.</p>
-
+<p>Los atributos de los recursos compartidos y propieades de las actividades deberían ser configurados utilizando Application, Module y Process Properties. 
+   Cuando dichos recursos o actividades se eliminan, muchas veces se quedan las variables, lo que dificulta el mantenimiento de los proyectos.
+  
+<p> Por defecto,  System Module Properties <code>BW.*</code>,  están excluidas, así como cualquier que cumpla el patrón.</p>

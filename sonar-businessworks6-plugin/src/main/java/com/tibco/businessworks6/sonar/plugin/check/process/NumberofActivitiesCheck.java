@@ -22,7 +22,7 @@ public class NumberofActivitiesCheck extends AbstractProcessCheck {
             defaultValue = "25")
     private int maxActivities;
 
-    public static final String RULE_KEY = "NumberOfActivities";
+    public static final String RULE_KEY = "NumberofActivitiesCheck";
     
 
     @Override
